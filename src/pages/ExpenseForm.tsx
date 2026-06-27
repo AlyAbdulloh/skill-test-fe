@@ -38,12 +38,12 @@ export const ExpenseForm: React.FC = () => {
               amount: Number(d.amount)
             })));
           } else {
-            setErrorMessage(res.message || 'Failed to retrieve expense data.');
+            setErrorMessage(res.message || 'Gagal mengambil data pengeluaran.');
           }
         } catch (err: any) {
           console.error(err);
           setErrorMessage(
-            err.response?.data?.message || 'Failed to connect to the backend server.'
+            err.response?.data?.message || 'Gagal terhubung dengan server backend.'
           );
         } finally {
           setLoading(false);
@@ -126,21 +126,21 @@ export const ExpenseForm: React.FC = () => {
 
     // Client-side validations
     if (!expenseDate) {
-      setErrorMessage('Expense Date is required.');
+      setErrorMessage('Tanggal Pengeluaran wajib diisi.');
       return;
     }
     if (!notes.trim()) {
-      setErrorMessage('Expense Notes are required.');
+      setErrorMessage('Deskripsi / Catatan wajib diisi.');
       return;
     }
     if (details.length === 0) {
-      setErrorMessage('At least one expense detail item is required.');
+      setErrorMessage('Minimal harus ada satu detail item pengeluaran.');
       return;
     }
 
     const invalidDetailIdx = details.findIndex(d => !d.title.trim() || Number(d.amount) < 0);
     if (invalidDetailIdx !== -1) {
-      setErrorMessage(`Please fill out all detail item names and ensure amounts are positive. Check item #${invalidDetailIdx + 1}.`);
+      setErrorMessage(`Harap isi semua nama detail item dan pastikan nominalnya positif. Periksa item #${invalidDetailIdx + 1}.`);
       return;
     }
 
@@ -165,19 +165,19 @@ export const ExpenseForm: React.FC = () => {
 
       if (res.success) {
         navigate('/expenses', {
-          state: { message: isEditMode ? 'Expense updated successfully.' : 'Expense created successfully.' }
+          state: { message: isEditMode ? 'Catatan pengeluaran berhasil diperbarui.' : 'Catatan pengeluaran berhasil dibuat.' }
         });
       } else {
-        setErrorMessage(res.message || 'Failed to save expense.');
+        setErrorMessage(res.message || 'Gagal menyimpan pengeluaran.');
       }
     } catch (err: any) {
       console.error(err);
       if (err.response?.status === 422) {
         setFieldErrors(err.response.data.errors || {});
-        setErrorMessage('Validation failed. Please correct the fields marked in red.');
+        setErrorMessage('Validasi gagal. Harap perbaiki kolom yang berwarna merah.');
       } else {
         setErrorMessage(
-          err.response?.data?.message || 'An error occurred while saving the expense.'
+          err.response?.data?.message || 'Terjadi kesalahan saat menyimpan pengeluaran.'
         );
       }
     } finally {
@@ -197,7 +197,7 @@ export const ExpenseForm: React.FC = () => {
     return (
       <div className="flex flex-col items-center justify-center py-32 gap-3">
         <span className="loading loading-spinner loading-lg text-primary"></span>
-        <span className="text-sm text-base-content/60">Loading expense data...</span>
+        <span className="text-sm text-base-content/60">Mengambil data pengeluaran...</span>
       </div>
     );
   }
@@ -210,7 +210,7 @@ export const ExpenseForm: React.FC = () => {
           onClick={() => navigate('/expenses')}
           className="btn btn-ghost btn-sm btn-circle"
           type="button"
-          title="Back to Expenses list"
+          title="Kembali ke daftar pengeluaran"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-5 h-5 stroke-current">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -218,10 +218,10 @@ export const ExpenseForm: React.FC = () => {
         </button>
         <div>
           <h1 className="text-2xl font-bold text-base-content m-0">
-            {isEditMode ? `Edit Expense Log (EXP-${String(id).padStart(5, '0')})` : 'Record New Expense'}
+            {isEditMode ? `Ubah Catatan Pengeluaran (EXP-${String(id).padStart(5, '0')})` : 'Catat Pengeluaran Baru'}
           </h1>
           <p className="text-sm text-base-content/60">
-            {isEditMode ? 'Modify existing ledger transaction details.' : 'Log operational costs, utilities or maintenance details.'}
+            {isEditMode ? 'Ubah rincian transaksi buku besar pengeluaran yang ada.' : 'Catat biaya operasional, utilitas, atau rincian pemeliharaan perumahan.'}
           </p>
         </div>
       </div>
@@ -246,7 +246,7 @@ export const ExpenseForm: React.FC = () => {
             {/* Expense Date */}
             <div className="form-control">
               <label className="label py-1">
-                <span className="label-text font-semibold text-xs text-base-content/70">Expense Date *</span>
+                <span className="label-text font-semibold text-xs text-base-content/70">Tanggal Pengeluaran *</span>
               </label>
               <input
                 type="date"
@@ -265,12 +265,12 @@ export const ExpenseForm: React.FC = () => {
             {/* Notes / Remarks */}
             <div className="form-control md:col-span-2">
               <label className="label py-1">
-                <span className="label-text font-semibold text-xs text-base-content/70">Description / Notes *</span>
+                <span className="label-text font-semibold text-xs text-base-content/70">Deskripsi / Catatan *</span>
               </label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="e.g. Purchase of street light lightbulbs, estate security guard monthly salaries..."
+                placeholder="Contoh: Pembelian lampu jalan, gaji bulanan satpam perumahan..."
                 className={`textarea textarea-bordered textarea-sm focus:outline-primary h-[38px] w-full min-h-[38px] ${fieldErrors.notes ? 'textarea-error' : ''
                   }`}
                 disabled={submitLoading}
@@ -289,8 +289,8 @@ export const ExpenseForm: React.FC = () => {
           <div>
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h3 className="font-bold text-base text-base-content m-0">Detail Cost Items</h3>
-                <p className="text-xs text-base-content/50">Add individual items that comprise this expense log.</p>
+                <h3 className="font-bold text-base text-base-content m-0">Detail Item Pengeluaran</h3>
+                <p className="text-xs text-base-content/50">Tambahkan item-item kebutuhan individu yang menyusun catatan pengeluaran ini.</p>
               </div>
               <button
                 type="button"
@@ -301,7 +301,7 @@ export const ExpenseForm: React.FC = () => {
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-3.5 h-3.5 stroke-current">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
                 </svg>
-                Add Item
+                Tambah Item
               </button>
             </div>
 
@@ -317,9 +317,9 @@ export const ExpenseForm: React.FC = () => {
                 <thead>
                   <tr className="bg-base-200/50 border-b border-base-200">
                     <th className="w-12 text-center text-xs">No</th>
-                    <th className="text-xs">Item Name / Title *</th>
-                    <th className="w-48 text-xs">Amount (IDR) *</th>
-                    <th className="w-16 text-center text-xs">Action</th>
+                    <th className="text-xs">Nama Item / Kebutuhan *</th>
+                    <th className="w-48 text-xs">Jumlah Biaya (Rp) *</th>
+                    <th className="w-16 text-center text-xs">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -337,7 +337,7 @@ export const ExpenseForm: React.FC = () => {
                         <td>
                           <input
                             type="text"
-                            placeholder="e.g. Guard A Salary, Park grass mower contractor fee..."
+                            placeholder="Contoh: Gaji Satpam, biaya potong rumput taman..."
                             value={detail.title}
                             onChange={(e) => handleDetailChange(index, 'title', e.target.value)}
                             className={`input input-bordered input-sm focus:outline-primary w-full ${fieldErrors[titleErrorKey] ? 'input-error' : ''
@@ -378,7 +378,7 @@ export const ExpenseForm: React.FC = () => {
                             onClick={() => handleRemoveRow(index)}
                             disabled={details.length <= 1 || submitLoading}
                             className="btn btn-ghost btn-xs text-error disabled:opacity-30 hover:bg-error/10 font-bold"
-                            title={details.length <= 1 ? "Must have at least one detail row" : "Remove item"}
+                            title={details.length <= 1 ? "Minimal harus memiliki satu baris detail" : "Hapus item"}
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-4 h-4 stroke-current">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -392,7 +392,7 @@ export const ExpenseForm: React.FC = () => {
                   {/* Summary/Total Row */}
                   <tr className="bg-base-200/35 border-t-2 border-base-200">
                     <td colSpan={2} className="text-right font-bold text-sm text-base-content/75 pr-6">
-                      Total Ledger Amount:
+                      Total Pengeluaran Kas:
                     </td>
                     <td className="font-extrabold text-sm text-error">
                       {formatCurrency(calculateTotal())}
@@ -412,7 +412,7 @@ export const ExpenseForm: React.FC = () => {
               className="btn btn-sm btn-ghost"
               disabled={submitLoading}
             >
-              Cancel
+              Batal
             </button>
             <button
               type="submit"
@@ -422,10 +422,10 @@ export const ExpenseForm: React.FC = () => {
               {submitLoading ? (
                 <>
                   <span className="loading loading-spinner loading-xs"></span>
-                  Saving...
+                  Menyimpan...
                 </>
               ) : (
-                isEditMode ? 'Update Expense' : 'Save Expense Log'
+                isEditMode ? 'Perbarui Pengeluaran' : 'Simpan Catatan Pengeluaran'
               )}
             </button>
           </div>

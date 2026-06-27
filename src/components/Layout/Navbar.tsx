@@ -77,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({ drawerId }) => {
         <button
           onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
           className="btn btn-ghost btn-circle"
-          title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+          title={theme === 'light' ? 'Ubah ke Mode Gelap' : 'Ubah ke Mode Terang'}
         >
           {theme === 'light' ? (
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5 text-base-content">
@@ -135,14 +135,14 @@ export const Navbar: React.FC<NavbarProps> = ({ drawerId }) => {
             className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow border border-base-200 mt-3"
           >
             <li className="px-4 py-2 border-b border-base-200 mb-1">
-              <div className="font-semibold block text-base-content text-left p-0">{user?.name || 'User Profile'}</div>
-              <div className="text-xs text-base-content/60 text-left p-0">{user?.email || 'No email'}</div>
+              <div className="font-semibold block text-base-content text-left p-0">{user?.name || 'Profil User'}</div>
+              <div className="text-xs text-base-content/60 text-left p-0">{user?.email || 'Tidak ada email'}</div>
             </li>
             {/* <li><a className="py-2">My Profile</a></li>
             <li><a className="py-2">Settings</a></li> */}
             <li className="mt-1 border-t border-base-200 pt-1">
               <button onClick={logout} className="text-error font-medium py-2 text-left w-full block">
-                Logout
+                Keluar
               </button>
             </li>
           </ul>

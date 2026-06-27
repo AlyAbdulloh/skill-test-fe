@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import houseService from '../services/houseService';
-import type { House, HouseFilters, HouseResidentHistory } from '../services/houseService';
+import type { House, HouseFilters } from '../services/houseService';
+import houseResidentService from '../services/houseResidentService';
+import type { HouseResident } from '../services/houseResidentService';
 
 export const Houses: React.FC = () => {
   // Lists & pagination
@@ -43,10 +45,10 @@ export const Houses: React.FC = () => {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<House | null>(null);
 
-  // Resident History Modal
+  // Occupancy History Modal States
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [historyTarget, setHistoryTarget] = useState<House | null>(null);
-  const [historyList, setHistoryList] = useState<HouseResidentHistory[]>([]);
+  const [historyList, setHistoryList] = useState<HouseResident[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyPagination, setHistoryPagination] = useState({
     currentPage: 1,
@@ -84,12 +86,12 @@ export const Houses: React.FC = () => {
           });
         }
       } else {
-        setErrorMessage(response.message || 'Failed to fetch houses.');
+        setErrorMessage(response.message || 'Gagal mengambil data rumah.');
       }
     } catch (err: any) {
       console.error(err);
       setErrorMessage(
-        err.response?.data?.message || 'Failed to connect to the backend server.'
+        err.response?.data?.message || 'Gagal terhubung dengan server backend.'
       );
     } finally {
       setLoading(false);
@@ -146,7 +148,7 @@ export const Houses: React.FC = () => {
       }
 
       if (res.success) {
-        showToast(res.message || 'Success!');
+        showToast(res.message || 'Sukses!');
         setIsModalOpen(false);
         fetchHouses(pagination.currentPage);
       }
@@ -156,7 +158,7 @@ export const Houses: React.FC = () => {
         setFieldErrors(err.response.data.errors || {});
       } else {
         setErrorMessage(
-          err.response?.data?.message || 'An error occurred during submission.'
+          err.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.'
         );
       }
     } finally {
@@ -177,7 +179,7 @@ export const Houses: React.FC = () => {
     try {
       const res = await houseService.deleteHouse(deleteTarget.id);
       if (res.success) {
-        showToast(res.message || 'House deleted successfully.');
+        showToast(res.message || 'Data rumah berhasil dihapus.');
         setIsDeleteOpen(false);
         setDeleteTarget(null);
         // Page adjustment if last item deleted
@@ -188,7 +190,7 @@ export const Houses: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       setErrorMessage(
-        err.response?.data?.message || 'Failed to delete property record.'
+        err.response?.data?.message || 'Gagal menghapus data rumah.'
       );
       setIsDeleteOpen(false);
     } finally {
@@ -196,25 +198,25 @@ export const Houses: React.FC = () => {
     }
   };
 
-  // Fetch Resident History
+  // View Occupancy History
   const viewHistory = async (house: House, page = 1) => {
     setHistoryTarget(house);
-    setHistoryLoading(true);
     setIsHistoryOpen(true);
+    setHistoryLoading(true);
     try {
-      const response = await houseService.getHouseResidentHistory(house.id, page);
-      if (response.success && response.data) {
-        setHistoryList(response.data.data);
-        if (response.data.meta) {
+      const res = await houseResidentService.getHouseResidents({ house_id: house.id }, page, 5);
+      if (res.success && res.data) {
+        setHistoryList(res.data.data);
+        if (res.data.meta) {
           setHistoryPagination({
-            currentPage: response.data.meta.current_page,
-            lastPage: response.data.meta.last_page,
-            total: response.data.meta.total,
+            currentPage: res.data.meta.current_page,
+            lastPage: res.data.meta.last_page,
+            total: res.data.meta.total,
           });
         }
       }
-    } catch (err: any) {
-      console.error(err);
+    } catch (err) {
+      console.error('Failed to load occupancy history:', err);
     } finally {
       setHistoryLoading(false);
     }
@@ -245,14 +247,14 @@ export const Houses: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-base-content m-0">Houses & Properties</h1>
-          <p className="text-sm text-base-content/60">Log, organize, and inspect occupancy logs across all perumahan blocks.</p>
+          <h1 className="text-2xl font-bold text-base-content m-0">Data Rumah & Properti</h1>
+          <p className="text-sm text-base-content/60">Kelola, catat, dan periksa data hunian rumah di seluruh blok perumahan.</p>
         </div>
         <button className="btn btn-primary btn-sm gap-2" onClick={openCreateModal}>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-4 h-4 stroke-current">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
           </svg>
-          Add House
+          Tambah Rumah
         </button>
       </div>
 
@@ -275,8 +277,8 @@ export const Houses: React.FC = () => {
             </svg>
           </div>
           <div>
-            <span className="text-xs text-base-content/50 font-semibold block">Total Properties</span>
-            <span className="text-xl font-bold">{pagination.total} Units</span>
+            <span className="text-xs text-base-content/50 font-semibold block">Total Properti</span>
+            <span className="text-xl font-bold">{pagination.total} Unit</span>
           </div>
         </div>
 
@@ -287,9 +289,9 @@ export const Houses: React.FC = () => {
             </svg>
           </div>
           <div>
-            <span className="text-xs text-base-content/50 font-semibold block">Occupied Units</span>
+            <span className="text-xs text-base-content/50 font-semibold block">Rumah Dihuni</span>
             <span className="text-xl font-bold">
-              {houses.filter((h) => h.occupancy_status === 'occupied').length} Active
+              {houses.filter((h) => h.occupancy_status === 'occupied').length} Aktif
             </span>
           </div>
         </div>
@@ -301,9 +303,9 @@ export const Houses: React.FC = () => {
             </svg>
           </div>
           <div>
-            <span className="text-xs text-base-content/50 font-semibold block">Vacant Units</span>
+            <span className="text-xs text-base-content/50 font-semibold block">Rumah Kosong</span>
             <span className="text-xl font-bold">
-              {houses.filter((h) => h.occupancy_status === 'unoccupied').length} Empty
+              {houses.filter((h) => h.occupancy_status === 'unoccupied').length} Kosong
             </span>
           </div>
         </div>
@@ -318,7 +320,7 @@ export const Houses: React.FC = () => {
             <div className="relative flex-1">
               <input
                 type="text"
-                placeholder="Search by house number or address..."
+                placeholder="Cari berdasarkan nomor rumah atau alamat..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="input input-sm input-bordered pl-8 w-full max-w-md focus:outline-primary"
@@ -344,9 +346,9 @@ export const Houses: React.FC = () => {
                 onChange={(e) => setStatusFilter(e.target.value as any)}
                 className="select select-sm select-bordered w-40 focus:outline-primary"
               >
-                <option value="">All Occupancy</option>
-                <option value="occupied">Occupied</option>
-                <option value="unoccupied">Unoccupied</option>
+                <option value="">Semua Status Hunian</option>
+                <option value="occupied">Dihuni</option>
+                <option value="unoccupied">Kosong</option>
               </select>
             </div>
           </div>
@@ -356,16 +358,16 @@ export const Houses: React.FC = () => {
             {loading && houses.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <span className="loading loading-spinner loading-lg text-primary"></span>
-                <span className="text-sm text-base-content/60">Fetching property logs...</span>
+                <span className="text-sm text-base-content/60">Mengambil data properti...</span>
               </div>
             ) : (
               <table className="table w-full">
                 <thead>
                   <tr className="border-b border-base-200">
-                    <th>House Number</th>
-                    <th>Full Address</th>
-                    <th>Occupancy Status</th>
-                    <th className="text-right">Actions</th>
+                    <th>Nomor Rumah</th>
+                    <th>Alamat Lengkap</th>
+                    <th>Status Hunian</th>
+                    <th className="text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -382,7 +384,7 @@ export const Houses: React.FC = () => {
                               ? 'badge-primary' 
                               : 'badge-ghost text-base-content/60'
                           }`}>
-                            {house.occupancy_status === 'occupied' ? 'Occupied' : 'Vacant'}
+                            {house.occupancy_status === 'occupied' ? 'Dihuni' : 'Kosong'}
                           </span>
                         </td>
                         <td className="text-right">
@@ -390,7 +392,7 @@ export const Houses: React.FC = () => {
                             className="btn btn-ghost btn-xs text-success font-bold mr-1 hover:bg-success/10"
                             onClick={() => viewHistory(house)}
                           >
-                            History
+                            Riwayat
                           </button>
                           <button
                             className="btn btn-ghost btn-xs text-primary font-bold mr-1 hover:bg-primary/10"
@@ -402,7 +404,7 @@ export const Houses: React.FC = () => {
                             className="btn btn-ghost btn-xs text-error font-bold hover:bg-error/10"
                             onClick={() => confirmDelete(house)}
                           >
-                            Delete
+                            Hapus
                           </button>
                         </td>
                       </tr>
@@ -410,7 +412,7 @@ export const Houses: React.FC = () => {
                   ) : (
                     <tr>
                       <td colSpan={4} className="text-center py-12 text-base-content/50">
-                        No property records found. Add one to get started.
+                        Data rumah tidak ditemukan. Tambahkan rumah baru untuk memulai.
                       </td>
                     </tr>
                   )}
@@ -423,7 +425,7 @@ export const Houses: React.FC = () => {
           {pagination.lastPage > 1 && (
             <div className="flex justify-between items-center mt-6">
               <span className="text-xs text-base-content/50">
-                Showing Page {pagination.currentPage} of {pagination.lastPage} ({pagination.total} records total)
+                Menampilkan Halaman {pagination.currentPage} dari {pagination.lastPage} (Total {pagination.total} data)
               </span>
               <div className="join">
                 <button
@@ -461,18 +463,18 @@ export const Houses: React.FC = () => {
         <div className="modal modal-open z-50 bg-black/60">
           <div className="modal-box max-w-md border border-base-200">
             <h3 className="font-bold text-lg text-base-content mb-4">
-              {modalType === 'create' ? 'Add House Record' : 'Edit House Details'}
+              {modalType === 'create' ? 'Tambah Data Rumah' : 'Ubah Detail Rumah'}
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* House Number */}
               <div className="form-control">
                 <label className="label py-1">
-                  <span className="label-text font-semibold text-xs">House Number (Unique)</span>
+                  <span className="label-text font-semibold text-xs">Nomor Rumah (Unik)</span>
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Block A/12"
+                  placeholder="Contoh: Blok A/12"
                   value={houseNumber}
                   onChange={(e) => setHouseNumber(e.target.value)}
                   className={`input input-bordered input-sm focus:outline-primary w-full ${
@@ -489,10 +491,10 @@ export const Houses: React.FC = () => {
               {/* Address */}
               <div className="form-control">
                 <label className="label py-1">
-                  <span className="label-text font-semibold text-xs">Full Address</span>
+                  <span className="label-text font-semibold text-xs">Alamat Lengkap</span>
                 </label>
                 <textarea
-                  placeholder="Enter detailed street address"
+                  placeholder="Masukkan alamat jalan lengkap dan detail"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   className={`textarea textarea-bordered textarea-sm focus:outline-primary w-full h-20 ${
@@ -509,7 +511,7 @@ export const Houses: React.FC = () => {
               {/* Occupancy Status */}
               <div className="form-control">
                 <label className="label py-1">
-                  <span className="label-text font-semibold text-xs">Occupancy Status</span>
+                  <span className="label-text font-semibold text-xs">Status Hunian</span>
                 </label>
                 <select
                   value={occupancyStatus}
@@ -517,8 +519,8 @@ export const Houses: React.FC = () => {
                   className="select select-bordered select-sm w-full focus:outline-primary"
                   disabled={submitLoading}
                 >
-                  <option value="unoccupied">Vacant (Empty)</option>
-                  <option value="occupied">Occupied</option>
+                  <option value="unoccupied">Kosong (Belum Dihuni)</option>
+                  <option value="occupied">Dihuni</option>
                 </select>
               </div>
 
@@ -530,7 +532,7 @@ export const Houses: React.FC = () => {
                   className="btn btn-sm btn-ghost"
                   disabled={submitLoading}
                 >
-                  Cancel
+                  Batal
                 </button>
                 <button
                   type="submit"
@@ -540,10 +542,10 @@ export const Houses: React.FC = () => {
                   {submitLoading ? (
                     <>
                       <span className="loading loading-spinner loading-xs"></span>
-                      Saving...
+                      Menyimpan...
                     </>
                   ) : (
-                    'Save Details'
+                    'Simpan Detail'
                   )}
                 </button>
               </div>
@@ -561,9 +563,9 @@ export const Houses: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </div>
-            <h3 className="font-bold text-lg text-base-content m-0">Delete House</h3>
+            <h3 className="font-bold text-lg text-base-content m-0">Hapus Rumah</h3>
             <p className="text-sm text-base-content/60 mt-1 mb-6">
-              Are you sure you want to delete house <strong>{deleteTarget?.house_number}</strong>? This will clear its property record.
+              Apakah Anda yakin ingin menghapus rumah <strong>{deleteTarget?.house_number}</strong>? Tindakan ini akan menghapus riwayat data properti tersebut.
             </p>
             <div className="flex justify-center gap-2">
               <button
@@ -574,14 +576,14 @@ export const Houses: React.FC = () => {
                 }}
                 disabled={loading}
               >
-                Cancel
+                Batal
               </button>
               <button
                 className="btn btn-sm btn-error text-white"
                 onClick={handleDelete}
                 disabled={loading}
               >
-                {loading ? 'Deleting...' : 'Delete Record'}
+                {loading ? 'Menghapus...' : 'Hapus Data'}
               </button>
             </div>
           </div>
@@ -594,7 +596,7 @@ export const Houses: React.FC = () => {
           <div className="modal-box max-w-2xl border border-base-200">
             <div className="flex justify-between items-center mb-4 border-b border-base-200 pb-3">
               <h3 className="font-bold text-lg text-base-content m-0">
-                Occupancy History: {historyTarget?.house_number}
+                Riwayat Hunian: {historyTarget?.house_number}
               </h3>
               <button
                 className="btn btn-sm btn-circle btn-ghost"
@@ -611,7 +613,7 @@ export const Houses: React.FC = () => {
             {historyLoading ? (
               <div className="flex flex-col items-center justify-center py-12 gap-2">
                 <span className="loading loading-spinner loading-md text-primary"></span>
-                <span className="text-xs text-base-content/60">Loading resident history...</span>
+                <span className="text-xs text-base-content/60">Mengambil riwayat penghuni...</span>
               </div>
             ) : (
               <div className="space-y-4">
@@ -619,10 +621,10 @@ export const Houses: React.FC = () => {
                   <table className="table table-compact w-full">
                     <thead>
                       <tr className="border-b border-base-200">
-                        <th>Resident Name</th>
-                        <th>Phone Number</th>
-                        <th>Start Date</th>
-                        <th>End Date</th>
+                        <th>Nama Penghuni</th>
+                        <th>Nomor Telepon</th>
+                        <th>Tanggal Mulai</th>
+                        <th>Tanggal Selesai</th>
                         <th>Status</th>
                       </tr>
                     </thead>
@@ -631,16 +633,16 @@ export const Houses: React.FC = () => {
                         historyList.map((history) => (
                           <tr key={history.id} className="border-b border-base-200">
                             <td className="font-semibold text-sm">
-                              {history.resident?.full_name || `Resident ID #${history.resident_id}`}
+                              {history.resident?.full_name || `Penghuni ID #${history.resident_id}`}
                             </td>
                             <td className="text-xs">{history.resident?.phone_number || '-'}</td>
                             <td className="text-xs">{history.start_date}</td>
-                            <td className="text-xs">{history.end_date || 'Present (Active)'}</td>
+                            <td className="text-xs">{history.end_date || 'Sekarang (Aktif)'}</td>
                             <td>
                               <span className={`badge badge-xs font-bold ${
                                 history.is_active ? 'badge-success text-white' : 'badge-ghost text-base-content/40'
                               }`}>
-                                {history.is_active ? 'Active' : 'Inactive'}
+                                {history.is_active ? 'Aktif' : 'Tidak Aktif'}
                               </span>
                             </td>
                           </tr>
@@ -648,7 +650,7 @@ export const Houses: React.FC = () => {
                       ) : (
                         <tr>
                           <td colSpan={5} className="text-center py-8 text-base-content/40 italic text-xs">
-                            No occupancy history recorded for this house.
+                            Belum ada riwayat hunian yang tercatat untuk rumah ini.
                           </td>
                         </tr>
                       )}
@@ -660,7 +662,7 @@ export const Houses: React.FC = () => {
                 {historyPagination.lastPage > 1 && (
                   <div className="flex justify-between items-center mt-4 pt-3 border-t border-base-200">
                     <span className="text-[10px] text-base-content/50">
-                      Showing Page {historyPagination.currentPage} of {historyPagination.lastPage}
+                      Menampilkan Halaman {historyPagination.currentPage} dari {historyPagination.lastPage}
                     </span>
                     <div className="join">
                       <button

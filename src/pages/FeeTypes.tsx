@@ -59,7 +59,7 @@ export const FeeTypes: React.FC = () => {
     try {
       const filters: FeeTypeFilters = {
         search: debouncedSearch,
-        is_active: statusFilter === '' ? '' : statusFilter === '1',
+        is_active: statusFilter === '' ? undefined : statusFilter === '1',
       };
       const response = await feeTypeService.getFeeTypes(filters, page, pagination.perPage);
       if (response.success && response.data) {
@@ -73,12 +73,12 @@ export const FeeTypes: React.FC = () => {
           });
         }
       } else {
-        setErrorMessage(response.message || 'Failed to fetch fee types.');
+        setErrorMessage(response.message || 'Gagal mengambil data kategori iuran.');
       }
     } catch (err: any) {
       console.error(err);
       setErrorMessage(
-        err.response?.data?.message || 'Failed to connect to the backend server.'
+        err.response?.data?.message || 'Gagal terhubung dengan server backend.'
       );
     } finally {
       setLoading(false);
@@ -107,7 +107,7 @@ export const FeeTypes: React.FC = () => {
     setSelectedId(fee.id);
     setName(fee.name);
     setAmount(fee.amount);
-    setIsActive(!!fee.is_active);
+    setIsActive(fee.is_active);
     setFieldErrors({});
     setIsModalOpen(true);
   };
@@ -135,7 +135,7 @@ export const FeeTypes: React.FC = () => {
       }
 
       if (res.success) {
-        showToast(res.message || 'Success!');
+        showToast(res.message || 'Sukses!');
         setIsModalOpen(false);
         fetchFeeTypes(pagination.currentPage);
       }
@@ -145,7 +145,7 @@ export const FeeTypes: React.FC = () => {
         setFieldErrors(err.response.data.errors || {});
       } else {
         setErrorMessage(
-          err.response?.data?.message || 'An error occurred during submission.'
+          err.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.'
         );
       }
     } finally {
@@ -166,7 +166,7 @@ export const FeeTypes: React.FC = () => {
     try {
       const res = await feeTypeService.deleteFeeType(deleteTarget.id);
       if (res.success) {
-        showToast(res.message || 'Fee type deleted successfully.');
+        showToast(res.message || 'Kategori iuran berhasil dihapus.');
         setIsDeleteOpen(false);
         setDeleteTarget(null);
         // Page adjustment if last item deleted
@@ -177,7 +177,7 @@ export const FeeTypes: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       setErrorMessage(
-        err.response?.data?.message || 'Failed to delete fee type record.'
+        err.response?.data?.message || 'Gagal menghapus kategori iuran.'
       );
       setIsDeleteOpen(false);
     } finally {
@@ -193,13 +193,13 @@ export const FeeTypes: React.FC = () => {
     }, 4000);
   };
 
-  // Format currency value to IDR
-  const formatIDR = (value: number) => {
+  // Helper formatter currency IDR
+  const formatIDR = (val: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
-    }).format(value);
+      minimumFractionDigits: 0,
+    }).format(val);
   };
 
   return (
@@ -219,14 +219,14 @@ export const FeeTypes: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-base-content m-0">Master Fee Types</h1>
-          <p className="text-sm text-base-content/60">Configure and manage various billing categories and templates.</p>
+          <h1 className="text-2xl font-bold text-base-content m-0">Kategori Iuran</h1>
+          <p className="text-sm text-base-content/60">Atur dan kelola berbagai kategori tagihan iuran perumahan.</p>
         </div>
         <button className="btn btn-primary btn-sm gap-2" onClick={openCreateModal}>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-4 h-4 stroke-current">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
           </svg>
-          Add Fee Type
+          Tambah Kategori
         </button>
       </div>
 
@@ -249,7 +249,7 @@ export const FeeTypes: React.FC = () => {
             <div className="relative flex-1">
               <input
                 type="text"
-                placeholder="Search by name..."
+                placeholder="Cari nama kategori..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="input input-sm input-bordered pl-8 w-full max-w-md focus:outline-primary"
@@ -276,9 +276,9 @@ export const FeeTypes: React.FC = () => {
                 onChange={(e) => setStatusFilter(e.target.value as any)}
                 className="select select-sm select-bordered w-36 focus:outline-primary"
               >
-                <option value="">All Statuses</option>
-                <option value="1">Active</option>
-                <option value="0">Inactive</option>
+                <option value="">Semua Status</option>
+                <option value="1">Aktif</option>
+                <option value="0">Tidak Aktif</option>
               </select>
             </div>
           </div>
@@ -288,16 +288,16 @@ export const FeeTypes: React.FC = () => {
             {loading && feeTypes.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <span className="loading loading-spinner loading-lg text-primary"></span>
-                <span className="text-sm text-base-content/60">Fetching billing templates...</span>
+                <span className="text-sm text-base-content/60">Mengambil data kategori iuran...</span>
               </div>
             ) : (
               <table className="table w-full">
                 <thead>
                   <tr className="border-b border-base-200">
-                    <th>Fee Name</th>
-                    <th>Base Amount</th>
+                    <th>Nama Iuran</th>
+                    <th>Jumlah Biaya</th>
                     <th>Status</th>
-                    <th className="text-right">Actions</th>
+                    <th className="text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -312,7 +312,7 @@ export const FeeTypes: React.FC = () => {
                               ? 'badge-success text-white' 
                               : 'badge-ghost text-base-content/40'
                           }`}>
-                            {fee.is_active ? 'Active' : 'Inactive'}
+                            {fee.is_active ? 'Aktif' : 'Tidak Aktif'}
                           </span>
                         </td>
                         <td className="text-right">
@@ -326,7 +326,7 @@ export const FeeTypes: React.FC = () => {
                             className="btn btn-ghost btn-xs text-error font-bold hover:bg-error/10"
                             onClick={() => confirmDelete(fee)}
                           >
-                            Delete
+                            Hapus
                           </button>
                         </td>
                       </tr>
@@ -334,7 +334,7 @@ export const FeeTypes: React.FC = () => {
                   ) : (
                     <tr>
                       <td colSpan={4} className="text-center py-12 text-base-content/50">
-                        No billing categories configured yet. Click "Add Fee Type" to start.
+                        Belum ada kategori iuran yang diatur. Klik "Tambah Kategori" untuk memulai.
                       </td>
                     </tr>
                   )}
@@ -347,7 +347,7 @@ export const FeeTypes: React.FC = () => {
           {pagination.lastPage > 1 && (
             <div className="flex justify-between items-center mt-6">
               <span className="text-xs text-base-content/50">
-                Showing Page {pagination.currentPage} of {pagination.lastPage} ({pagination.total} records total)
+                Menampilkan Halaman {pagination.currentPage} dari {pagination.lastPage} (Total {pagination.total} data)
               </span>
               <div className="join">
                 <button
@@ -385,18 +385,18 @@ export const FeeTypes: React.FC = () => {
         <div className="modal modal-open z-50 bg-black/60">
           <div className="modal-box max-w-md border border-base-200">
             <h3 className="font-bold text-lg text-base-content mb-4">
-              {modalType === 'create' ? 'Add Fee Category' : 'Edit Fee Details'}
+              {modalType === 'create' ? 'Tambah Kategori Iuran' : 'Ubah Detail Kategori'}
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Name */}
               <div className="form-control">
                 <label className="label py-1">
-                  <span className="label-text font-semibold text-xs">Fee Name *</span>
+                  <span className="label-text font-semibold text-xs">Nama Iuran *</span>
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Iuran Keamanan, Sampah"
+                  placeholder="Contoh: Iuran Keamanan, Kebersihan"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className={`input input-bordered input-sm focus:outline-primary w-full ${
@@ -413,11 +413,11 @@ export const FeeTypes: React.FC = () => {
               {/* Base Amount */}
               <div className="form-control">
                 <label className="label py-1">
-                  <span className="label-text font-semibold text-xs">Billing Amount (IDR) *</span>
+                  <span className="label-text font-semibold text-xs">Jumlah Iuran (IDR) *</span>
                 </label>
                 <input
                   type="number"
-                  placeholder="e.g. 50000"
+                  placeholder="Contoh: 50000"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value === '' ? '' : Number(e.target.value))}
                   className={`input input-bordered input-sm focus:outline-primary w-full ${
@@ -442,7 +442,7 @@ export const FeeTypes: React.FC = () => {
                     className="checkbox checkbox-primary checkbox-sm"
                     disabled={submitLoading}
                   />
-                  <span className="label-text font-semibold text-xs">Is Active template</span>
+                  <span className="label-text font-semibold text-xs">Kategori Aktif</span>
                 </label>
                 {fieldErrors.is_active && (
                   <p className="text-error text-xs mt-1">{fieldErrors.is_active[0]}</p>
@@ -457,7 +457,7 @@ export const FeeTypes: React.FC = () => {
                   className="btn btn-sm btn-ghost"
                   disabled={submitLoading}
                 >
-                  Cancel
+                  Batal
                 </button>
                 <button
                   type="submit"
@@ -467,10 +467,10 @@ export const FeeTypes: React.FC = () => {
                   {submitLoading ? (
                     <>
                       <span className="loading loading-spinner loading-xs"></span>
-                      Saving...
+                      Menyimpan...
                     </>
                   ) : (
-                    'Save Details'
+                    'Simpan Detail'
                   )}
                 </button>
               </div>
@@ -488,9 +488,9 @@ export const FeeTypes: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </div>
-            <h3 className="font-bold text-lg text-base-content m-0">Delete Fee Type</h3>
+            <h3 className="font-bold text-lg text-base-content m-0">Hapus Kategori Iuran</h3>
             <p className="text-sm text-base-content/60 mt-1 mb-6">
-              Are you sure you want to delete fee type <strong>{deleteTarget?.name}</strong>? This will clear its billing template.
+              Apakah Anda yakin ingin menghapus kategori iuran <strong>{deleteTarget?.name}</strong>? Tindakan ini akan menghapus template tagihan iuran terkait.
             </p>
             <div className="flex justify-center gap-2">
               <button
@@ -501,14 +501,14 @@ export const FeeTypes: React.FC = () => {
                 }}
                 disabled={loading}
               >
-                Cancel
+                Batal
               </button>
               <button
                 className="btn btn-sm btn-error text-white"
                 onClick={handleDelete}
                 disabled={loading}
               >
-                {loading ? 'Deleting...' : 'Delete Template'}
+                {loading ? 'Menghapus...' : 'Hapus Template'}
               </button>
             </div>
           </div>

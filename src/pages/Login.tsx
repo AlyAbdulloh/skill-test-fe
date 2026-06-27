@@ -27,7 +27,7 @@ export const Login: React.FC = () => {
     setFieldErrors({});
 
     if (!email || !password) {
-      setErrorMessage('Please fill in both email and password.');
+      setErrorMessage('Harap isi email dan password.');
       return;
     }
 
@@ -39,11 +39,11 @@ export const Login: React.FC = () => {
       console.error(err);
       if (err.response?.status === 422) {
         setFieldErrors(err.response.data.errors || {});
-        setErrorMessage('Validation failed. Please check your credentials format.');
+        setErrorMessage('Validasi gagal. Harap periksa format email dan password Anda.');
       } else if (err.response?.status === 401) {
-        setErrorMessage(err.response.data.message || 'Invalid email or password.');
+        setErrorMessage(err.response.data.message || 'Email atau password salah.');
       } else {
-        setErrorMessage(err.message || 'Failed to connect to the login service.');
+        setErrorMessage(err.message || 'Gagal terhubung ke layanan login.');
       }
     } finally {
       setSubmitLoading(false);
@@ -72,7 +72,7 @@ export const Login: React.FC = () => {
               </div>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-base-content">
-              Welcome to GriyaHub
+              Selamat Datang di GriyaHub
             </h1>
             <p className="text-xs text-base-content/60 mt-1">
               Sistem Administrasi Perumahan Modern
@@ -95,12 +95,12 @@ export const Login: React.FC = () => {
             {/* Email Input */}
             <div className="form-control w-full">
               <label className="label py-1">
-                <span className="label-text font-bold text-xs text-base-content/75">Email Address *</span>
+                <span className="label-text font-bold text-xs text-base-content/75">Alamat Email *</span>
               </label>
               <div className="relative">
                 <input
                   type="email"
-                  placeholder="e.g. admin@beon.co.id"
+                  placeholder="Contoh: admin@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className={`input input-bordered focus:outline-primary w-full pl-10 ${
@@ -126,7 +126,7 @@ export const Login: React.FC = () => {
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter secure password"
+                  placeholder="Masukkan password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className={`input input-bordered focus:outline-primary w-full pl-10 pr-10 ${
@@ -173,10 +173,10 @@ export const Login: React.FC = () => {
                 {submitLoading ? (
                   <>
                     <span className="loading loading-spinner loading-xs"></span>
-                    Authenticating Admin...
+                    Memverifikasi Admin...
                   </>
                 ) : (
-                  'Login'
+                  'Masuk'
                 )}
               </button>
             </div>

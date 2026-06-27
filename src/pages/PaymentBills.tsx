@@ -86,12 +86,12 @@ export const PaymentBills: React.FC = () => {
           });
         }
       } else {
-        setErrorMessage(response.message || 'Failed to fetch payment bills.');
+        setErrorMessage(response.message || 'Gagal mengambil data tagihan.');
       }
     } catch (err: any) {
       console.error(err);
       setErrorMessage(
-        err.response?.data?.message || 'Failed to connect to the backend server.'
+        err.response?.data?.message || 'Gagal terhubung dengan server backend.'
       );
     } finally {
       setLoading(false);
@@ -145,8 +145,8 @@ export const PaymentBills: React.FC = () => {
     if (!dateStr) return '';
     const [year, month] = dateStr.split('-');
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
     ];
     const monthIndex = parseInt(month, 10) - 1;
     if (monthIndex >= 0 && monthIndex < 12) {
@@ -218,14 +218,14 @@ export const PaymentBills: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!houseResidentId || !feeTypeId || !amountPerMonth || !paidAt) {
-      setErrorMessage('Please fill in all required fields.');
+      setErrorMessage('Harap isi semua kolom wajib.');
       return;
     }
 
     let calculatedMonths: string[] = [];
     if (isMultiMonth) {
       if (!startMonth || !endMonth) {
-        setErrorMessage('Please select start and end months.');
+        setErrorMessage('Harap pilih bulan mulai dan bulan selesai.');
         return;
       }
       if (startMonth > endMonth) {
@@ -235,7 +235,7 @@ export const PaymentBills: React.FC = () => {
       calculatedMonths = getMonthsBetween(startMonth, endMonth);
     } else {
       if (!singleMonth) {
-        setErrorMessage('Please select billing month.');
+        setErrorMessage('Harap pilih bulan tagihan.');
         return;
       }
       calculatedMonths = [singleMonth];
@@ -266,7 +266,7 @@ export const PaymentBills: React.FC = () => {
         setFieldErrors(err.response.data.errors || {});
       } else {
         setErrorMessage(
-          err.response?.data?.message || 'An error occurred during submission.'
+          err.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.'
         );
       }
     } finally {
@@ -285,13 +285,13 @@ export const PaymentBills: React.FC = () => {
         paid_at: todayStr,
       });
       if (res.success) {
-        showToast('Status tagihan iuran berhasil diubah menjadi Paid.');
+        showToast('Status tagihan iuran berhasil diubah menjadi Lunas.');
         fetchBills(pagination.currentPage);
       }
     } catch (err: any) {
       console.error(err);
       setErrorMessage(
-        err.response?.data?.message || 'Failed to update payment status.'
+        err.response?.data?.message || 'Gagal mengubah status pembayaran.'
       );
     } finally {
       setLoading(false);
@@ -322,7 +322,7 @@ export const PaymentBills: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       setErrorMessage(
-        err.response?.data?.message || 'Failed to delete payment bill.'
+        err.response?.data?.message || 'Gagal menghapus tagihan.'
       );
       setIsDeleteOpen(false);
     } finally {
@@ -349,14 +349,14 @@ export const PaymentBills: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-base-content m-0">Payment Bills</h1>
-          <p className="text-sm text-base-content/60">Issue invoices, record payments, and track household collections.</p>
+          <h1 className="text-2xl font-bold text-base-content m-0">Tagihan Iuran</h1>
+          <p className="text-sm text-base-content/60">Terbitkan tagihan iuran, catat pembayaran, dan pantau iuran bulanan warga.</p>
         </div>
         <button className="btn btn-primary btn-sm gap-2" onClick={openCreateModal}>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-4 h-4 stroke-current">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
           </svg>
-          Issue Bill
+          Buat Tagihan
         </button>
       </div>
 
@@ -406,7 +406,7 @@ export const PaymentBills: React.FC = () => {
                 onChange={(e) => setFeeTypeFilter(e.target.value ? Number(e.target.value) : '')}
                 className="select select-sm select-bordered w-full sm:w-44 focus:outline-primary"
               >
-                <option value="">All Dues Types</option>
+                <option value="">Semua Jenis Iuran</option>
                 {feeTypes.map((f) => (
                   <option key={f.id} value={f.id}>{f.name}</option>
                 ))}
@@ -417,16 +417,16 @@ export const PaymentBills: React.FC = () => {
                 onChange={(e) => setStatusFilter(e.target.value as any)}
                 className="select select-sm select-bordered w-full sm:w-44 focus:outline-primary"
               >
-                <option value="">All Statuses</option>
-                <option value="paid">Paid</option>
-                <option value="unpaid">Unpaid</option>
+                <option value="">Semua Status</option>
+                <option value="paid">Lunas</option>
+                <option value="unpaid">Belum Lunas</option>
               </select>
             </div>
 
             <div className="relative w-full sm:w-64 mt-2 sm:mt-0">
               <input
                 type="text"
-                placeholder="Search resident or house..."
+                placeholder="Cari penghuni atau nomor rumah..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="input input-sm input-bordered pl-8 w-full focus:outline-primary"
@@ -452,19 +452,19 @@ export const PaymentBills: React.FC = () => {
             {loading && bills.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <span className="loading loading-spinner loading-lg text-primary"></span>
-                <span className="text-sm text-base-content/60">Fetching bills...</span>
+                <span className="text-sm text-base-content/60">Mengambil data tagihan...</span>
               </div>
             ) : (
               <table className="table w-full">
                 <thead>
                   <tr className="border-b border-base-200">
-                    <th>Invoice No.</th>
-                    <th>Resident</th>
-                    <th>Bill Type</th>
-                    <th>Period</th>
-                    <th>Amount</th>
+                    <th>No. Tagihan</th>
+                    <th>Penghuni</th>
+                    <th>Jenis Iuran</th>
+                    <th>Periode</th>
+                    <th>Jumlah</th>
                     <th>Status</th>
-                    <th className="text-right">Action</th>
+                    <th className="text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -477,10 +477,10 @@ export const PaymentBills: React.FC = () => {
                         <td>
                           <div>
                             <div className="font-semibold text-sm">
-                              {bill.house_resident?.resident?.full_name || `Resident ID #${bill.house_resident?.resident_id}`}
+                              {bill.house_resident?.resident?.full_name || `Penghuni ID #${bill.house_resident?.resident_id}`}
                             </div>
                             <div className="text-xs text-base-content/50">
-                              House: {bill.house_resident?.house?.house_number}
+                              Rumah: {bill.house_resident?.house?.house_number}
                             </div>
                           </div>
                         </td>
@@ -490,9 +490,9 @@ export const PaymentBills: React.FC = () => {
                         </td>
                         <td className="font-bold text-sm">{formatCurrency(bill.amount)}</td>
                         <td>
-                          <span className={`badge badge-sm font-semibold capitalize ${bill.status === 'paid' ? 'badge-success text-white' : 'badge-error text-white'
+                          <span className={`badge badge-sm font-semibold ${bill.status === 'paid' ? 'badge-success text-white' : 'badge-error text-white'
                             }`}>
-                            {bill.status}
+                            {bill.status === 'paid' ? 'Lunas' : 'Belum Lunas'}
                           </span>
                         </td>
                         <td className="text-right">
@@ -501,14 +501,14 @@ export const PaymentBills: React.FC = () => {
                               onClick={() => handleRecordPay(bill.id)}
                               className="btn btn-ghost btn-xs text-primary font-bold mr-1 hover:bg-primary/10"
                             >
-                              Record Pay
+                              Bayar Tagihan
                             </button>
                           )}
                           <button
                             onClick={() => confirmDelete(bill)}
                             className="btn btn-ghost btn-xs text-error font-bold hover:bg-error/10"
                           >
-                            Delete
+                            Hapus
                           </button>
                         </td>
                       </tr>
@@ -516,7 +516,7 @@ export const PaymentBills: React.FC = () => {
                   ) : (
                     <tr>
                       <td colSpan={7} className="text-center py-8 text-base-content/50">
-                        No invoices found matching criteria.
+                        Tagihan iuran tidak ditemukan.
                       </td>
                     </tr>
                   )}
@@ -529,7 +529,7 @@ export const PaymentBills: React.FC = () => {
           {pagination.lastPage > 1 && (
             <div className="flex justify-between items-center mt-6">
               <span className="text-xs text-base-content/50">
-                Showing Page {pagination.currentPage} of {pagination.lastPage} ({pagination.total} records total)
+                Menampilkan Halaman {pagination.currentPage} dari {pagination.lastPage} (Total {pagination.total} data)
               </span>
               <div className="join">
                 <button
@@ -567,14 +567,14 @@ export const PaymentBills: React.FC = () => {
       {isModalOpen && (
         <div className="modal modal-open z-50 bg-black/60">
           <div className="modal-box max-w-md border border-base-200">
-            <h3 className="font-bold text-lg text-base-content mb-4">Issue New Bill</h3>
+            <h3 className="font-bold text-lg text-base-content mb-4">Buat Tagihan Iuran Baru</h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
 
               {/* Select House Resident */}
               <div className="form-control">
                 <label className="label py-1">
-                  <span className="label-text font-semibold text-xs">Resident & House *</span>
+                  <span className="label-text font-semibold text-xs">Penghuni & Rumah *</span>
                 </label>
                 <select
                   value={houseResidentId}
@@ -584,7 +584,7 @@ export const PaymentBills: React.FC = () => {
                   disabled={submitLoading}
                   required
                 >
-                  <option value="">-- Choose Resident --</option>
+                  <option value="">-- Pilih Penghuni --</option>
                   {houseResidents.map((hr) => (
                     <option key={hr.id} value={hr.id}>
                       {hr.resident?.full_name} ({hr.house?.house_number})
@@ -599,7 +599,7 @@ export const PaymentBills: React.FC = () => {
               {/* Select Fee Type */}
               <div className="form-control">
                 <label className="label py-1">
-                  <span className="label-text font-semibold text-xs">Fee Type *</span>
+                  <span className="label-text font-semibold text-xs">Jenis Iuran *</span>
                 </label>
                 <select
                   value={feeTypeId}
@@ -609,7 +609,7 @@ export const PaymentBills: React.FC = () => {
                   disabled={submitLoading}
                   required
                 >
-                  <option value="">-- Choose Fee Type --</option>
+                  <option value="">-- Pilih Jenis Iuran --</option>
                   {feeTypes.map((f) => (
                     <option key={f.id} value={f.id}>
                       {f.name}
@@ -624,7 +624,7 @@ export const PaymentBills: React.FC = () => {
               {/* Amount Per Month */}
               <div className="form-control">
                 <label className="label py-1">
-                  <span className="label-text font-semibold text-xs">Amount Per Month (IDR) *</span>
+                  <span className="label-text font-semibold text-xs">Jumlah Iuran Per Bulan (IDR) *</span>
                 </label>
                 <input
                   type="number"
@@ -715,7 +715,7 @@ export const PaymentBills: React.FC = () => {
               {/* Paid At */}
               <div className="form-control">
                 <label className="label py-1">
-                  <span className="label-text font-semibold text-xs">Paid At *</span>
+                  <span className="label-text font-semibold text-xs">Tanggal Pembayaran *</span>
                 </label>
                 <input
                   type="date"
@@ -739,7 +739,7 @@ export const PaymentBills: React.FC = () => {
                   className="btn btn-sm btn-ghost"
                   disabled={submitLoading}
                 >
-                  Cancel
+                  Batal
                 </button>
                 <button
                   type="submit"
@@ -749,10 +749,10 @@ export const PaymentBills: React.FC = () => {
                   {submitLoading ? (
                     <>
                       <span className="loading loading-spinner loading-xs"></span>
-                      Saving...
+                      Menyimpan...
                     </>
                   ) : (
-                    'Save Bill'
+                    'Simpan Tagihan'
                   )}
                 </button>
               </div>
@@ -771,13 +771,13 @@ export const PaymentBills: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </div>
-            <h3 className="font-bold text-lg text-base-content m-0">Delete Bill</h3>
+            <h3 className="font-bold text-lg text-base-content m-0">Hapus Tagihan</h3>
             <p className="text-sm text-base-content/60 mt-1 mb-6">
-              Are you sure you want to delete the invoice for{' '}
+              Apakah Anda yakin ingin menghapus tagihan untuk{' '}
               <strong>
-                {deleteTarget?.house_resident?.resident?.full_name || `Resident ID #${deleteTarget?.house_resident?.resident_id}`}
+                {deleteTarget?.house_resident?.resident?.full_name || `Penghuni ID #${deleteTarget?.house_resident?.resident_id}`}
               </strong>{' '}
-              ({deleteTarget?.fee_type?.name} - {deleteTarget && formatPeriod(deleteTarget.billing_month.substring(0, 7))})? This action cannot be undone.
+              ({deleteTarget?.fee_type?.name} - {deleteTarget && formatPeriod(deleteTarget.billing_month.substring(0, 7))})? Tindakan ini tidak dapat dibatalkan.
             </p>
             <div className="flex justify-center gap-2">
               <button
@@ -788,14 +788,14 @@ export const PaymentBills: React.FC = () => {
                 }}
                 disabled={loading}
               >
-                Cancel
+                Batal
               </button>
               <button
                 className="btn btn-sm btn-error text-white"
                 onClick={handleDelete}
                 disabled={loading}
               >
-                {loading ? 'Deleting...' : 'Delete Bill'}
+                {loading ? 'Menghapus...' : 'Hapus Tagihan'}
               </button>
             </div>
           </div>

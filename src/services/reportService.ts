@@ -15,6 +15,9 @@ export interface SummaryReportData {
   year: number;
   income: MonthlyIncome[];
   expense: MonthlyExpense[];
+  total_income?: number;
+  total_expense?: number;
+  remaining_balance?: number;
 }
 
 export interface ReportFilters {

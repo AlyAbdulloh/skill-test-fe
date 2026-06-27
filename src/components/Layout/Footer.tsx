@@ -14,15 +14,15 @@ export const Footer: React.FC = () => {
           >
             PT Beon Intermedia
           </a>
-          . All rights reserved.
+          . Hak cipta dilindungi.
         </p>
       </div>
       <div className="flex gap-4">
-        <a href="#privacy" className="hover:underline">Privacy Policy</a>
+        <a href="#privacy" className="hover:underline">Kebijakan Privasi</a>
         <span className="opacity-30">|</span>
-        <a href="#terms" className="hover:underline">Terms of Service</a>
+        <a href="#terms" className="hover:underline">Syarat & Ketentuan</a>
         <span className="opacity-30">|</span>
-        <a href="#help" className="hover:underline">Help & Support</a>
+        <a href="#help" className="hover:underline">Bantuan & Dukungan</a>
       </div>
     </footer>
   );

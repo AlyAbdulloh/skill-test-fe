@@ -1,21 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import expenseService from '../services/expenseService';
 import type { Expense, ExpenseFilters } from '../services/expenseService';
 
 export const Expenses: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
 
-  // Parse location state for redirects
-  useEffect(() => {
-    if (location.state?.message) {
-      showToast(location.state.message);
-      window.history.replaceState({}, document.title);
-    }
-  }, [location]);
-
-  // State lists & pagination
+  // Lists & pagination
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [pagination, setPagination] = useState<{
     currentPage: number;
@@ -29,7 +20,7 @@ export const Expenses: React.FC = () => {
     perPage: 10,
   });
 
-  // State filters
+  // State Filters
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [startDate, setStartDate] = useState('');
@@ -44,7 +35,7 @@ export const Expenses: React.FC = () => {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Expense | null>(null);
 
-  // Debounce search input by 500ms
+  // Debounce search filter by 500ms
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
@@ -53,15 +44,7 @@ export const Expenses: React.FC = () => {
     return () => clearTimeout(handler);
   }, [search]);
 
-  // Toast alert trigger
-  const showToast = (message: string) => {
-    setSuccessMessage(message);
-    setTimeout(() => {
-      setSuccessMessage(null);
-    }, 4000);
-  };
-
-  // Fetch Expenses from Backend
+  // Fetch Expenses
   const fetchExpenses = useCallback(async (page = 1) => {
     setLoading(true);
     setErrorMessage(null);
@@ -71,7 +54,6 @@ export const Expenses: React.FC = () => {
         start_date: startDate || undefined,
         end_date: endDate || undefined,
       };
-
       const response = await expenseService.getExpenses(filters, page, pagination.perPage);
       if (response.success && response.data) {
         setExpenses(response.data.data);
@@ -84,19 +66,19 @@ export const Expenses: React.FC = () => {
           });
         }
       } else {
-        setErrorMessage(response.message || 'Failed to fetch expenses.');
+        setErrorMessage(response.message || 'Gagal mengambil data pengeluaran.');
       }
     } catch (err: any) {
       console.error(err);
       setErrorMessage(
-        err.response?.data?.message || 'Failed to connect to the backend server.'
+        err.response?.data?.message || 'Gagal terhubung dengan server backend.'
       );
     } finally {
       setLoading(false);
     }
   }, [debouncedSearch, startDate, endDate, pagination.perPage]);
 
-  // Trigger reload on filter change
+  // Reload fee types on filter / search changes
   useEffect(() => {
     fetchExpenses(1);
   }, [debouncedSearch, startDate, endDate]);
@@ -114,22 +96,22 @@ export const Expenses: React.FC = () => {
     try {
       const response = await expenseService.deleteExpense(deleteTarget.id);
       if (response.success) {
-        showToast('Expense record deleted successfully.');
+        showToast('Catatan pengeluaran berhasil dihapus.');
         setIsDeleteOpen(false);
         setDeleteTarget(null);
-
+        
         // Adjust page if we deleted the last item on the page
         const isLastItem = expenses.length === 1;
         const targetPage = isLastItem && pagination.currentPage > 1 ? pagination.currentPage - 1 : pagination.currentPage;
         fetchExpenses(targetPage);
       } else {
-        setErrorMessage(response.message || 'Failed to delete expense.');
+        setErrorMessage(response.message || 'Gagal menghapus pengeluaran.');
         setIsDeleteOpen(false);
       }
     } catch (err: any) {
       console.error(err);
       setErrorMessage(
-        err.response?.data?.message || 'An error occurred while deleting the expense.'
+        err.response?.data?.message || 'Gagal menghapus data pengeluaran.'
       );
       setIsDeleteOpen(false);
     } finally {
@@ -137,24 +119,26 @@ export const Expenses: React.FC = () => {
     }
   };
 
-  // Format currency helpers
-  const formatCurrency = (value: number) => {
+  // Toast alert trigger
+  const showToast = (message: string) => {
+    setSuccessMessage(message);
+    setTimeout(() => {
+      setSuccessMessage(null);
+    }, 4000);
+  };
+
+  // Helper format currency IDR
+  const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0
-    }).format(value);
+      minimumFractionDigits: 0,
+    }).format(val);
   };
 
-  // Calculate sum of single expense details
   const getExpenseTotal = (expense: Expense) => {
     return expense.details?.reduce((acc, detail) => acc + Number(detail.amount), 0) || 0;
   };
-
-  // Stats summaries (commented out as the UI section is commented out)
-  // const totalOutflow = expenses.reduce((acc, exp) => acc + getExpenseTotal(exp), 0);
-  // const totalItemsCount = expenses.reduce((acc, exp) => acc + (exp.details?.length || 0), 0);
-  // const averageExpense = expenses.length > 0 ? totalOutflow / expenses.length : 0;
 
   return (
     <div>
@@ -173,8 +157,8 @@ export const Expenses: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-base-content m-0">Expense Ledger</h1>
-          <p className="text-sm text-base-content/60">Log estate operations outflows, worker salaries, and repair projects.</p>
+          <h1 className="text-2xl font-bold text-base-content m-0">Catatan Pengeluaran Kas</h1>
+          <p className="text-sm text-base-content/60">Catat biaya operasional perumahan, gaji pekerja, dan proyek perbaikan.</p>
         </div>
         <button
           onClick={() => navigate('/expenses/create')}
@@ -183,7 +167,7 @@ export const Expenses: React.FC = () => {
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-4 h-4 stroke-current">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
           </svg>
-          Record Expense
+          Catat Pengeluaran
         </button>
       </div>
 
@@ -197,30 +181,6 @@ export const Expenses: React.FC = () => {
         </div>
       )}
 
-      {/* Stats Summary */}
-      {/* <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="card bg-base-100 shadow-sm border border-base-200 p-4">
-          <span className="text-xs text-base-content/50 font-semibold block uppercase">Page Total Outflow</span>
-          <span className="text-2xl font-black mt-1 text-error">
-            {formatCurrency(totalOutflow)}
-          </span>
-        </div>
-
-        <div className="card bg-base-100 shadow-sm border border-base-200 p-4">
-          <span className="text-xs text-base-content/50 font-semibold block uppercase text-primary">Page Average Expense</span>
-          <span className="text-2xl font-black mt-1 text-primary">
-            {formatCurrency(averageExpense)}
-          </span>
-        </div>
-
-        <div className="card bg-base-100 shadow-sm border border-base-200 p-4">
-          <span className="text-xs text-base-content/50 font-semibold block uppercase text-warning">Page Item Details Count</span>
-          <span className="text-2xl font-black mt-1 text-warning">
-            {totalItemsCount} items
-          </span>
-        </div>
-      </section> */}
-
       {/* Expenses Listing */}
       <div className="card bg-base-100 shadow border border-base-200">
         <div className="card-body p-6">
@@ -229,7 +189,7 @@ export const Expenses: React.FC = () => {
           <div className="flex flex-col md:flex-row gap-3 mb-6 items-center justify-between">
             <div className="flex flex-wrap gap-2 w-full md:w-auto items-center">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-base-content/65 font-medium">From:</span>
+                <span className="text-xs text-base-content/65 font-medium">Dari:</span>
                 <input
                   type="date"
                   value={startDate}
@@ -238,7 +198,7 @@ export const Expenses: React.FC = () => {
                 />
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-base-content/65 font-medium">To:</span>
+                <span className="text-xs text-base-content/65 font-medium">Sampai:</span>
                 <input
                   type="date"
                   value={endDate}
@@ -254,7 +214,7 @@ export const Expenses: React.FC = () => {
                   }}
                   className="btn btn-ghost btn-xs text-error font-semibold"
                 >
-                  Clear Dates
+                  Hapus Filter Tanggal
                 </button>
               )}
             </div>
@@ -262,7 +222,7 @@ export const Expenses: React.FC = () => {
             <div className="relative w-full md:w-64">
               <input
                 type="text"
-                placeholder="Search notes or items..."
+                placeholder="Cari catatan atau item kebutuhan..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="input input-sm input-bordered pl-8 w-full focus:outline-primary"
@@ -288,18 +248,18 @@ export const Expenses: React.FC = () => {
             {loading && expenses.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <span className="loading loading-spinner loading-lg text-primary"></span>
-                <span className="text-sm text-base-content/60">Fetching expense logs...</span>
+                <span className="text-sm text-base-content/60">Mengambil data pengeluaran kas...</span>
               </div>
             ) : (
               <table className="table w-full">
                 <thead>
                   <tr className="border-b border-base-200">
-                    <th>Code</th>
-                    <th>Date</th>
-                    <th>Notes</th>
-                    <th>Items</th>
-                    <th>Total Amount</th>
-                    <th className="text-right">Action</th>
+                    <th>Kode</th>
+                    <th>Tanggal</th>
+                    <th>Catatan</th>
+                    <th>Item Kebutuhan</th>
+                    <th>Total Biaya</th>
+                    <th className="text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -312,7 +272,7 @@ export const Expenses: React.FC = () => {
                             EXP-{String(exp.id).padStart(5, '0')}
                           </td>
                           <td className="text-sm text-base-content/80">
-                            {new Date(exp.expense_date).toLocaleDateString('en-US', {
+                            {new Date(exp.expense_date).toLocaleDateString('id-ID', {
                               year: 'numeric',
                               month: 'short',
                               day: 'numeric'
@@ -330,7 +290,7 @@ export const Expenses: React.FC = () => {
                               ))}
                               {exp.details && exp.details.length > 3 && (
                                 <span className="text-[10px] text-base-content/50 italic font-semibold pl-1">
-                                  + {exp.details.length - 3} more items
+                                  + {exp.details.length - 3} item lagi
                                 </span>
                               )}
                             </div>
@@ -349,7 +309,7 @@ export const Expenses: React.FC = () => {
                               onClick={() => confirmDelete(exp)}
                               className="btn btn-ghost btn-xs text-error font-bold hover:bg-error/10"
                             >
-                              Delete
+                              Hapus
                             </button>
                           </td>
                         </tr>
@@ -358,7 +318,7 @@ export const Expenses: React.FC = () => {
                   ) : (
                     <tr>
                       <td colSpan={6} className="text-center py-8 text-base-content/50">
-                        No expense logs found matching criteria.
+                        Catatan pengeluaran tidak ditemukan.
                       </td>
                     </tr>
                   )}
@@ -371,7 +331,7 @@ export const Expenses: React.FC = () => {
           {pagination.lastPage > 1 && (
             <div className="flex justify-between items-center mt-6">
               <span className="text-xs text-base-content/50">
-                Showing Page {pagination.currentPage} of {pagination.lastPage} ({pagination.total} records total)
+                Menampilkan Halaman {pagination.currentPage} dari {pagination.lastPage} (Total {pagination.total} data)
               </span>
               <div className="join">
                 <button
@@ -414,9 +374,9 @@ export const Expenses: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </div>
-            <h3 className="font-bold text-lg text-base-content m-0">Delete Expense</h3>
+            <h3 className="font-bold text-lg text-base-content m-0">Hapus Pengeluaran</h3>
             <p className="text-sm text-base-content/60 mt-1 mb-6">
-              Are you sure you want to delete expense record <strong>EXP-{String(deleteTarget?.id).padStart(5, '0')}</strong>? All corresponding transaction details will be deleted permanently.
+              Apakah Anda yakin ingin menghapus catatan pengeluaran <strong>EXP-{String(deleteTarget?.id).padStart(5, '0')}</strong>? Semua rincian transaksi terkait akan dihapus secara permanen.
             </p>
             <div className="flex justify-center gap-2">
               <button
@@ -427,7 +387,7 @@ export const Expenses: React.FC = () => {
                 }}
                 disabled={loading}
               >
-                Cancel
+                Batal
               </button>
               <button
                 className="btn btn-sm btn-error text-white"
@@ -437,7 +397,7 @@ export const Expenses: React.FC = () => {
                 {loading ? (
                   <span className="loading loading-spinner loading-xs"></span>
                 ) : (
-                  'Delete Record'
+                  'Hapus Data'
                 )}
               </button>
             </div>

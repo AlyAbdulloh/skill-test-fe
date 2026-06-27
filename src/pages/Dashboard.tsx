@@ -18,6 +18,11 @@ export const Dashboard: React.FC = () => {
   const [activeOccupancies, setActiveOccupancies] = useState<number>(0);
   const [pendingInvoices, setPendingInvoices] = useState<number>(0);
 
+  // Financial Summary States
+  const [totalIncome, setTotalIncome] = useState<number>(0);
+  const [totalExpense, setTotalExpense] = useState<number>(0);
+  const [remainingBalance, setRemainingBalance] = useState<number>(0);
+
   // Financial Report State (Annual)
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   const [chartData, setChartData] = useState<{
@@ -106,6 +111,11 @@ export const Dashboard: React.FC = () => {
           income: incomeArr,
           expense: expenseArr,
         });
+
+        // Store overall financial figures
+        setTotalIncome(res.data.total_income || 0);
+        setTotalExpense(res.data.total_expense || 0);
+        setRemainingBalance(res.data.remaining_balance || 0);
       } else {
         setErrorMessage(res.message || 'Failed to fetch financial report summary.');
       }
@@ -163,7 +173,7 @@ export const Dashboard: React.FC = () => {
     labels: months,
     datasets: [
       {
-        label: 'Income Collections',
+        label: 'Penerimaan Iuran',
         data: chartData.income,
         borderColor: '#10B981', // Emerald green
         backgroundColor: 'rgba(16, 185, 129, 0.08)',
@@ -180,7 +190,7 @@ export const Dashboard: React.FC = () => {
     labels: months,
     datasets: [
       {
-        label: 'Operational Expenses',
+        label: 'Pengeluaran Operasional',
         data: chartData.expense,
         borderColor: '#EF4444', // Rose red
         backgroundColor: 'rgba(239, 68, 68, 0.08)',
@@ -287,7 +297,7 @@ export const Dashboard: React.FC = () => {
           </svg>
         </div>
         <div className="max-w-xl">
-          <span className="badge badge-accent font-bold mb-3">Panel Kontrol GriyaHub</span>
+          {/* <span className="badge badge-accent font-bold mb-3">Panel Kontrol GriyaHub</span> */}
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
             Selamat Datang, Admin!
           </h1>
@@ -305,17 +315,115 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Stats Cards Section */}
+      {/* Financial Summary Cards */}
+      <div className="mb-4">
+        <h2 className="text-sm font-extrabold uppercase tracking-wider text-base-content/60 m-0">Ringkasan Kas & Keuangan</h2>
+      </div>
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Saldo Kas Perumahan */}
+        <div className="card bg-base-100 shadow border-2 border-primary/20 hover:border-primary transition-all">
+          <div className="card-body p-5">
+            <div className="flex justify-between items-start">
+              <div>
+                <span className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">Sisa Saldo Kas</span>
+                {loadingChart ? (
+                  <div className="h-9 w-28 bg-base-300 animate-pulse rounded-lg mt-1"></div>
+                ) : (
+                  <p className="text-2xl font-extrabold mt-1 text-primary">{formatCurrency(remainingBalance)}</p>
+                )}
+              </div>
+              <div className="p-2.5 bg-primary/10 rounded-xl text-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5.5 h-5.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5h.007m-.008-.005h-.006V4.5h.007zm0 15h.007m-.008-.005h-.006v-.001h.007zm0-3h.007m-.008-.005h-.006V16.5h.007zm0-3h.007m-.008-.005h-.006v-.001h.007zm0-3h.007m-.008-.005h-.006V10.5h.007zm0-3h.007m-.008-.005h-.006v-.001h.007zm16.5 0h.008v.007h-.008V4.5zm0 15h.008v.007h-.008v-.007zm0-3h.008v.007h-.008V16.5zm0-3h.008v.007h-.008v-.007zm0-3h.008v.007h-.008V10.5zm0-3h.008v.007h-.008v-.007zm-12-6a2.25 2.25 0 00-2.25 2.25v13.5a2.25 2.25 0 002.25 2.25h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0018.75 4.5h-15zM7.5 12a3.75 3.75 0 117.5 0 3.75 3.75 0 01-7.5 0z" />
+                </svg>
+              </div>
+            </div>
+            <div className="mt-3 text-xs text-base-content/40 font-semibold block">Total dana kas bersih perumahan</div>
+          </div>
+        </div>
+
+        {/* Total Pendapatan */}
         <div className="card bg-base-100 shadow border border-base-200">
           <div className="card-body p-5">
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">Total Houses</span>
+                <span className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">Total Pendapatan</span>
+                {loadingChart ? (
+                  <div className="h-9 w-28 bg-base-300 animate-pulse rounded-lg mt-1"></div>
+                ) : (
+                  <p className="text-2xl font-extrabold mt-1 text-success">{formatCurrency(totalIncome)}</p>
+                )}
+              </div>
+              <div className="p-2.5 bg-success/10 rounded-xl text-success">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5.5 h-5.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <div className="mt-3 text-xs text-base-content/40 font-semibold block">Pembayaran iuran warga terbayar</div>
+          </div>
+        </div>
+
+        {/* Total Pengeluaran */}
+        <div className="card bg-base-100 shadow border border-base-200">
+          <div className="card-body p-5">
+            <div className="flex justify-between items-start">
+              <div>
+                <span className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">Total Pengeluaran</span>
+                {loadingChart ? (
+                  <div className="h-9 w-28 bg-base-300 animate-pulse rounded-lg mt-1"></div>
+                ) : (
+                  <p className="text-2xl font-extrabold mt-1 text-error">{formatCurrency(totalExpense)}</p>
+                )}
+              </div>
+              <div className="p-2.5 bg-error/10 rounded-xl text-error">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5.5 h-5.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <div className="mt-3 text-xs text-base-content/40 font-semibold block">Pengeluaran kas operasional & gaji</div>
+          </div>
+        </div>
+
+        {/* Tagihan Belum Lunas */}
+        <div className="card bg-base-100 shadow border border-base-200">
+          <div className="card-body p-5">
+            <div className="flex justify-between items-start">
+              <div>
+                <span className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">Tagihan Belum Lunas</span>
                 {loadingStats ? (
                   <div className="h-9 w-12 bg-base-300 animate-pulse rounded-lg mt-1"></div>
                 ) : (
-                  <p className="text-3xl font-extrabold mt-1">{totalHouses}</p>
+                  <p className="text-2xl font-extrabold mt-1 text-warning">{pendingInvoices}</p>
+                )}
+              </div>
+              <div className="p-2.5 bg-warning/10 rounded-xl text-warning">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5.5 h-5.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+            </div>
+            <div className="mt-3 text-xs text-warning font-semibold block">Outstanding tagihan warga</div>
+          </div>
+        </div>
+      </section>
+
+      {/* General Stats Section */}
+      <div className="mb-4">
+        <h2 className="text-sm font-extrabold uppercase tracking-wider text-base-content/60 m-0">Statistik Unit & Hunian</h2>
+      </div>
+      <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        {/* Total Rumah */}
+        <div className="card bg-base-100 shadow border border-base-200">
+          <div className="card-body p-5">
+            <div className="flex justify-between items-start">
+              <div>
+                <span className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">Total Rumah</span>
+                {loadingStats ? (
+                  <div className="h-9 w-12 bg-base-300 animate-pulse rounded-lg mt-1"></div>
+                ) : (
+                  <p className="text-2xl font-extrabold mt-1">{totalHouses}</p>
                 )}
               </div>
               <div className="p-2 bg-primary/10 rounded-lg text-primary">
@@ -324,19 +432,20 @@ export const Dashboard: React.FC = () => {
                 </svg>
               </div>
             </div>
-            <div className="mt-3 text-xs text-base-content/40 font-semibold block">Registered estate plots</div>
+            <div className="mt-3 text-xs text-base-content/40 font-semibold block">Kavling rumah terdaftar</div>
           </div>
         </div>
 
+        {/* Total Penghuni */}
         <div className="card bg-base-100 shadow border border-base-200">
           <div className="card-body p-5">
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">Total Residents</span>
+                <span className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">Total Penghuni</span>
                 {loadingStats ? (
                   <div className="h-9 w-12 bg-base-300 animate-pulse rounded-lg mt-1"></div>
                 ) : (
-                  <p className="text-3xl font-extrabold mt-1">{totalResidents}</p>
+                  <p className="text-2xl font-extrabold mt-1">{totalResidents}</p>
                 )}
               </div>
               <div className="p-2 bg-secondary/10 rounded-lg text-secondary">
@@ -345,19 +454,20 @@ export const Dashboard: React.FC = () => {
                 </svg>
               </div>
             </div>
-            <div className="mt-3 text-xs text-base-content/40 font-semibold block">Verified occupant profiles</div>
+            <div className="mt-3 text-xs text-base-content/40 font-semibold block">Profil penghuni terverifikasi</div>
           </div>
         </div>
 
+        {/* Rumah Terisi */}
         <div className="card bg-base-100 shadow border border-base-200">
           <div className="card-body p-5">
             <div className="flex justify-between items-start">
               <div>
-                <span className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">Active Houses</span>
+                <span className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">Rumah Terisi</span>
                 {loadingStats ? (
                   <div className="h-9 w-12 bg-base-300 animate-pulse rounded-lg mt-1"></div>
                 ) : (
-                  <p className="text-3xl font-extrabold mt-1">{activeOccupancies}</p>
+                  <p className="text-2xl font-extrabold mt-1">{activeOccupancies}</p>
                 )}
               </div>
               <div className="p-2 bg-success/10 rounded-lg text-success">
@@ -366,31 +476,7 @@ export const Dashboard: React.FC = () => {
                 </svg>
               </div>
             </div>
-            <div className="mt-3 text-xs text-base-content/40 font-semibold block">Houses currently occupied</div>
-          </div>
-        </div>
-
-        <div className="card bg-base-100 shadow border border-base-200">
-          <div className="card-body p-5">
-            <div className="flex justify-between items-start">
-              <div>
-                <span className="text-base-content/60 text-xs font-semibold uppercase tracking-wider">Unpaid Invoices</span>
-                {loadingStats ? (
-                  <div className="h-9 w-12 bg-base-300 animate-pulse rounded-lg mt-1"></div>
-                ) : (
-                  <p className="text-3xl font-extrabold mt-1 text-error">{pendingInvoices}</p>
-                )}
-              </div>
-              <div className="p-2 bg-error/10 rounded-lg text-error">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-5 h-5 stroke-current">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-            <div className="mt-3 text-xs text-error font-semibold flex items-center gap-1">
-              <span>Action required</span>
-              <span className="text-base-content/40">outstanding collections</span>
-            </div>
+            <div className="mt-3 text-xs text-base-content/40 font-semibold block">Rumah dengan hunian aktif</div>
           </div>
         </div>
       </section>
@@ -398,8 +484,8 @@ export const Dashboard: React.FC = () => {
       {/* Control Filter Bar */}
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-lg font-bold text-base-content m-0">Annual Financial Flow</h2>
-          <p className="text-xs text-base-content/50 mt-0.5">Overview of annual flows (Summary Graph).</p>
+          <h2 className="text-lg font-bold text-base-content m-0">Aliran Keuangan Tahunan</h2>
+          <p className="text-xs text-base-content/50 mt-0.5">Ikhtisar aliran keuangan tahunan (Grafik Ringkasan).</p>
         </div>
         <select
           value={selectedYear}
@@ -407,9 +493,9 @@ export const Dashboard: React.FC = () => {
           className="select select-sm select-bordered font-bold text-xs focus:outline-primary w-32"
           disabled={loadingChart}
         >
-          <option value="2026">Year 2026</option>
-          <option value="2025">Year 2025</option>
-          <option value="2024">Year 2024</option>
+          <option value="2026">Tahun 2026</option>
+          <option value="2025">Tahun 2025</option>
+          <option value="2024">Tahun 2024</option>
         </select>
       </div>
 
@@ -421,25 +507,25 @@ export const Dashboard: React.FC = () => {
 
       {/* Grid: 2 Separate Charts */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        
+
         {/* Income Chart Card */}
         <div className="card bg-base-100 shadow border border-base-200">
           <div className="card-body p-6">
             <div className="mb-4">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full"></span>
-                <h3 className="text-sm font-bold text-base-content uppercase tracking-wider m-0">Income & Collections</h3>
+                <h3 className="text-sm font-bold text-base-content uppercase tracking-wider m-0">Penerimaan & Iuran</h3>
               </div>
-              <p className="text-xs text-base-content/50 mt-0.5">Annual paid billing invoices collected.</p>
+              <p className="text-xs text-base-content/50 mt-0.5">Akumulasi pembayaran tagihan iuran tahunan yang lunas.</p>
             </div>
-            
+
             <div className="h-[220px] w-full relative">
               {loadingChart && (
                 <div className="absolute inset-0 flex items-center justify-center bg-base-100/50 z-10">
                   <span className="loading loading-spinner loading-md text-emerald-500"></span>
                 </div>
               )}
-              <Line data={incomeChartData} options={chartOptions('Collected')} />
+              <Line data={incomeChartData} options={chartOptions('Penerimaan')} />
             </div>
           </div>
         </div>
@@ -450,18 +536,18 @@ export const Dashboard: React.FC = () => {
             <div className="mb-4">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 bg-rose-500 rounded-full"></span>
-                <h3 className="text-sm font-bold text-base-content uppercase tracking-wider m-0">Operational Expenses</h3>
+                <h3 className="text-sm font-bold text-base-content uppercase tracking-wider m-0">Pengeluaran Operasional</h3>
               </div>
-              <p className="text-xs text-base-content/50 mt-0.5">Annual logged operational costs & salaries.</p>
+              <p className="text-xs text-base-content/50 mt-0.5">Akumulasi biaya operasional & gaji yang tercatat.</p>
             </div>
-            
+
             <div className="h-[220px] w-full relative">
               {loadingChart && (
                 <div className="absolute inset-0 flex items-center justify-center bg-base-100/50 z-10">
                   <span className="loading loading-spinner loading-md text-rose-500"></span>
                 </div>
               )}
-              <Line data={expenseChartData} options={chartOptions('Spent')} />
+              <Line data={expenseChartData} options={chartOptions('Pengeluaran')} />
             </div>
           </div>
         </div>
@@ -471,27 +557,26 @@ export const Dashboard: React.FC = () => {
       {/* Monthly Detailed Transaction Section */}
       <div className="card bg-base-100 shadow border border-base-200 mb-8">
         <div className="card-body p-6">
-          
+
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-base-200 pb-5 mb-6">
             <div>
               <div className="flex items-center gap-3">
-                <h2 className="text-lg font-bold text-base-content m-0">Monthly Detailed Transactions</h2>
+                <h2 className="text-lg font-bold text-base-content m-0">Detail Transaksi Bulanan</h2>
                 {detailReport && (
-                  <span className={`badge font-bold px-2.5 py-1 text-xs border ${
-                    getNetBalance() >= 0 
-                      ? 'badge-success text-success bg-success/10 border-success/20' 
+                  <span className={`badge font-bold px-2.5 py-1 text-xs border ${getNetBalance() >= 0
+                      ? 'badge-success text-success bg-success/10 border-success/20'
                       : 'badge-error text-error bg-error/10 border-error/20'
-                  }`}>
-                    Net Balance: {formatCurrency(getNetBalance())}
+                    }`}>
+                    Saldo Bersih: {formatCurrency(getNetBalance())}
                   </span>
                 )}
               </div>
-              <p className="text-xs text-base-content/60 mt-0.5">Itemized transaction details (Incomes vs Outflows) for candidate report auditing.</p>
+              <p className="text-xs text-base-content/60 mt-0.5">Rincian detail transaksi (Pemasukan vs Pengeluaran) untuk audit pelaporan perumahan.</p>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-base-content/60">Target Month:</span>
+              <span className="text-xs font-semibold text-base-content/60">Bulan Target:</span>
               <input
                 type="month"
                 value={detailMonth}
@@ -505,7 +590,7 @@ export const Dashboard: React.FC = () => {
           {loadingDetail && !detailReport ? (
             <div className="flex flex-col items-center justify-center py-20 gap-2">
               <span className="loading loading-spinner loading-md text-primary"></span>
-              <span className="text-xs text-base-content/50">Fetching monthly audit trail...</span>
+              <span className="text-xs text-base-content/50">Mengambil rincian data audit bulanan...</span>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative">
@@ -519,18 +604,18 @@ export const Dashboard: React.FC = () => {
               <div className="p-4 rounded-2xl bg-base-200/15 border border-base-200 flex flex-col justify-between min-h-[300px]">
                 <div>
                   <div className="flex justify-between items-center border-b border-base-200 pb-3 mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-500">Monthly Collections</span>
-                    <span className="badge badge-sm font-semibold badge-ghost">Paid Invoices</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-500">Penerimaan Bulanan</span>
+                    <span className="badge badge-sm font-semibold badge-ghost">Tagihan Lunas</span>
                   </div>
 
                   <div className="overflow-x-auto w-full">
                     <table className="table table-xs w-full">
                       <thead>
                         <tr>
-                          <th>Paid Date</th>
-                          <th>Resident</th>
-                          <th>Fee Type</th>
-                          <th className="text-right">Amount</th>
+                          <th>Tanggal Bayar</th>
+                          <th>Penghuni</th>
+                          <th>Jenis Iuran</th>
+                          <th className="text-right">Jumlah</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -538,17 +623,17 @@ export const Dashboard: React.FC = () => {
                           detailReport.incomes.map((income) => (
                             <tr key={income.id} className="hover:bg-base-200/20">
                               <td className="text-xs text-base-content/65">
-                                {income.paid_at ? new Date(income.paid_at).toLocaleDateString('en-US', {
+                                {income.paid_at ? new Date(income.paid_at).toLocaleDateString('id-ID', {
                                   month: 'short',
                                   day: 'numeric'
                                 }) : '-'}
                               </td>
                               <td>
                                 <div className="font-semibold text-xs text-base-content">
-                                  {income.house_resident?.resident?.full_name || 'Resident'}
+                                  {income.house_resident?.resident?.full_name || 'Penghuni'}
                                 </div>
                                 <div className="text-[10px] text-base-content/55">
-                                  House: {income.house_resident?.house?.house_number || '-'}
+                                  Rumah: {income.house_resident?.house?.house_number || '-'}
                                 </div>
                               </td>
                               <td className="text-xs text-base-content/75">{income.fee_type?.name}</td>
@@ -560,7 +645,7 @@ export const Dashboard: React.FC = () => {
                         ) : (
                           <tr>
                             <td colSpan={4} className="text-center py-10 text-xs text-base-content/50">
-                              No collections recorded in this month.
+                              Tidak ada transaksi penerimaan yang tercatat pada bulan ini.
                             </td>
                           </tr>
                         )}
@@ -570,7 +655,7 @@ export const Dashboard: React.FC = () => {
                 </div>
 
                 <div className="border-t border-base-200 pt-3 mt-4 flex justify-between items-center">
-                  <span className="text-xs font-bold text-base-content/60">Total Inflow:</span>
+                  <span className="text-xs font-bold text-base-content/60">Total Pemasukan:</span>
                   <span className="font-extrabold text-sm text-emerald-500">
                     {formatCurrency(detailReport?.total_income || 0)}
                   </span>
@@ -581,18 +666,18 @@ export const Dashboard: React.FC = () => {
               <div className="p-4 rounded-2xl bg-base-200/15 border border-base-200 flex flex-col justify-between min-h-[300px]">
                 <div>
                   <div className="flex justify-between items-center border-b border-base-200 pb-3 mb-4">
-                    <span className="text-xs font-bold uppercase tracking-wider text-rose-500">Monthly Expenses</span>
-                    <span className="badge badge-sm font-semibold badge-ghost">Outflow Logs</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-rose-500">Pengeluaran Bulanan</span>
+                    <span className="badge badge-sm font-semibold badge-ghost">Catatan Pengeluaran</span>
                   </div>
 
                   <div className="overflow-x-auto w-full">
                     <table className="table table-xs w-full">
                       <thead>
                         <tr>
-                          <th>Date</th>
-                          <th>Item Name</th>
-                          <th>Description</th>
-                          <th className="text-right">Amount</th>
+                          <th>Tanggal</th>
+                          <th>Nama Kebutuhan</th>
+                          <th>Deskripsi</th>
+                          <th className="text-right">Jumlah</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -600,7 +685,7 @@ export const Dashboard: React.FC = () => {
                           detailReport.expenses.map((expense) => (
                             <tr key={expense.id} className="hover:bg-base-200/20">
                               <td className="text-xs text-base-content/65">
-                                {expense.expense?.expense_date ? new Date(expense.expense.expense_date).toLocaleDateString('en-US', {
+                                {expense.expense?.expense_date ? new Date(expense.expense.expense_date).toLocaleDateString('id-ID', {
                                   month: 'short',
                                   day: 'numeric'
                                 }) : '-'}
@@ -619,7 +704,7 @@ export const Dashboard: React.FC = () => {
                         ) : (
                           <tr>
                             <td colSpan={4} className="text-center py-10 text-xs text-base-content/50">
-                              No expense items recorded in this month.
+                              Tidak ada transaksi pengeluaran yang tercatat pada bulan ini.
                             </td>
                           </tr>
                         )}
@@ -629,7 +714,7 @@ export const Dashboard: React.FC = () => {
                 </div>
 
                 <div className="border-t border-base-200 pt-3 mt-4 flex justify-between items-center">
-                  <span className="text-xs font-bold text-base-content/60">Total Outflow:</span>
+                  <span className="text-xs font-bold text-base-content/60">Total Pengeluaran:</span>
                   <span className="font-extrabold text-sm text-rose-500">
                     {formatCurrency(detailReport?.total_expense || 0)}
                   </span>
@@ -644,24 +729,24 @@ export const Dashboard: React.FC = () => {
 
       {/* Grid: Unpaid Invoices List & Quick Actions */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Table Panel: Unpaid Bills */}
         <div className="card bg-base-100 shadow border border-base-200 lg:col-span-2">
           <div className="card-body p-6">
             <div className="mb-4">
-              <h2 className="text-lg font-bold text-base-content m-0">Recent Outstanding Invoices</h2>
-              <p className="text-xs text-base-content/60">Candidate invoices awaiting payments.</p>
+              <h2 className="text-lg font-bold text-base-content m-0">Tagihan Tertunggak Terbaru</h2>
+              <p className="text-xs text-base-content/60">Daftar tagihan iuran warga yang belum terbayar.</p>
             </div>
 
             <div className="overflow-x-auto w-full">
               <table className="table w-full">
                 <thead>
                   <tr className="border-b border-base-200">
-                    <th>Resident</th>
-                    <th>House</th>
-                    <th>Fee Type</th>
-                    <th>Period</th>
-                    <th className="text-right">Outstanding Amount</th>
+                    <th>Penghuni</th>
+                    <th>Rumah</th>
+                    <th>Jenis Iuran</th>
+                    <th>Periode</th>
+                    <th className="text-right">Total Tunggakan</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -670,7 +755,7 @@ export const Dashboard: React.FC = () => {
                       <tr key={bill.id} className="hover:bg-base-200/20 border-b border-base-200 transition-colors">
                         <td>
                           <span className="font-semibold text-sm">
-                            {bill.house_resident?.resident?.full_name || `Resident ID #${bill.house_resident?.resident_id}`}
+                            {bill.house_resident?.resident?.full_name || `Penghuni ID #${bill.house_resident?.resident_id}`}
                           </span>
                         </td>
                         <td>
@@ -692,7 +777,7 @@ export const Dashboard: React.FC = () => {
                   ) : (
                     <tr>
                       <td colSpan={5} className="text-center py-8 text-base-content/50">
-                        No unpaid invoices found.
+                        Tidak ada tagihan tertunggak yang ditemukan.
                       </td>
                     </tr>
                   )}
@@ -705,8 +790,8 @@ export const Dashboard: React.FC = () => {
         {/* Sidebar Widget: Quick Actions */}
         <div className="card bg-base-100 shadow border border-base-200">
           <div className="card-body p-6">
-            <h2 className="text-lg font-bold text-base-content mb-1">Quick Actions</h2>
-            <p className="text-xs text-base-content/60 mb-4">Direct shortcuts to workflow management.</p>
+            <h2 className="text-lg font-bold text-base-content mb-1">Aksi Cepat</h2>
+            <p className="text-xs text-base-content/60 mb-4">Pintasan cepat untuk manajemen administrasi.</p>
 
             <div className="flex flex-col gap-2">
               <button
@@ -716,7 +801,7 @@ export const Dashboard: React.FC = () => {
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-4 h-4 stroke-current">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
                 </svg>
-                Record Expense Outflow
+                Catat Pengeluaran Kas
               </button>
               <button
                 onClick={() => navigate('/payment-bills')}
@@ -725,7 +810,7 @@ export const Dashboard: React.FC = () => {
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-4 h-4 stroke-current">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                 </svg>
-                Issue Payment Invoices
+                Buat Tagihan Iuran
               </button>
               <button
                 onClick={() => navigate('/residents')}
@@ -734,7 +819,7 @@ export const Dashboard: React.FC = () => {
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-4 h-4 stroke-current">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                Register New Resident
+                Daftarkan Penghuni Baru
               </button>
             </div>
           </div>

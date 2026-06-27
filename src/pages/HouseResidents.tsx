@@ -84,12 +84,12 @@ export const HouseResidents: React.FC = () => {
           });
         }
       } else {
-        setErrorMessage(response.message || 'Failed to fetch occupancies.');
+        setErrorMessage(response.message || 'Gagal mengambil data hunian.');
       }
     } catch (err: any) {
       console.error(err);
       setErrorMessage(
-        err.response?.data?.message || 'Failed to connect to the backend server.'
+        err.response?.data?.message || 'Gagal terhubung dengan server backend.'
       );
     } finally {
       setLoading(false);
@@ -177,7 +177,7 @@ export const HouseResidents: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!houseId || !residentId || !startDate) {
-      setErrorMessage('Please fill in all required fields.');
+      setErrorMessage('Harap isi semua kolom wajib.');
       return;
     }
 
@@ -203,7 +203,7 @@ export const HouseResidents: React.FC = () => {
       }
 
       if (res.success) {
-        showToast(res.message || 'Occupancy record saved.');
+        showToast(res.message || 'Data hunian berhasil disimpan.');
         setIsModalOpen(false);
         fetchAssociations(pagination.currentPage);
       }
@@ -213,7 +213,7 @@ export const HouseResidents: React.FC = () => {
         setFieldErrors(err.response.data.errors || {});
       } else {
         setErrorMessage(
-          err.response?.data?.message || 'An error occurred during submission.'
+          err.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.'
         );
       }
     } finally {
@@ -234,7 +234,7 @@ export const HouseResidents: React.FC = () => {
     try {
       const res = await houseResidentService.deleteHouseResident(deleteTarget.id);
       if (res.success) {
-        showToast(res.message || 'Occupancy mapping cleared.');
+        showToast(res.message || 'Hubungan hunian berhasil dihapus.');
         setIsDeleteOpen(false);
         setDeleteTarget(null);
         // Page adjustment if last item deleted
@@ -245,7 +245,7 @@ export const HouseResidents: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       setErrorMessage(
-        err.response?.data?.message || 'Failed to clear occupancy association.'
+        err.response?.data?.message || 'Gagal menghapus hubungan hunian.'
       );
       setIsDeleteOpen(false);
     } finally {
@@ -278,14 +278,14 @@ export const HouseResidents: React.FC = () => {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-base-content m-0">House Residents (Occupancies)</h1>
-          <p className="text-sm text-base-content/60">Map residents to houses and manage occupancy timelines.</p>
+          <h1 className="text-2xl font-bold text-base-content m-0">Hunian Rumah (Penghuni)</h1>
+          <p className="text-sm text-base-content/60">Hubungkan penghuni ke unit rumah dan kelola riwayat hunian.</p>
         </div>
         <button className="btn btn-primary btn-sm gap-2" onClick={openCreateModal}>
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="w-4 h-4 stroke-current">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
           </svg>
-          Add Occupant
+          Tambah Penghuni
         </button>
       </div>
 
@@ -308,7 +308,7 @@ export const HouseResidents: React.FC = () => {
             <div className="relative flex-1">
               <input
                 type="text"
-                placeholder="Search by resident name or house number..."
+                placeholder="Cari berdasarkan nama penghuni atau nomor rumah..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="input input-sm input-bordered pl-8 w-full max-w-md focus:outline-primary"
@@ -334,9 +334,9 @@ export const HouseResidents: React.FC = () => {
                 onChange={(e) => setStatusFilter(e.target.value as any)}
                 className="select select-sm select-bordered w-40 focus:outline-primary"
               >
-                <option value="">All Occupancy States</option>
-                <option value="1">Active Occupant</option>
-                <option value="0">Inactive / Moved</option>
+                <option value="">Semua Status Hunian</option>
+                <option value="1">Penghuni Aktif</option>
+                <option value="0">Tidak Aktif / Pindah</option>
               </select>
             </div>
           </div>
@@ -346,18 +346,18 @@ export const HouseResidents: React.FC = () => {
             {loading && associations.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <span className="loading loading-spinner loading-lg text-primary"></span>
-                <span className="text-sm text-base-content/60">Fetching occupancy associations...</span>
+                <span className="text-sm text-base-content/60">Mengambil data hunian...</span>
               </div>
             ) : (
               <table className="table w-full">
                 <thead>
                   <tr className="border-b border-base-200">
-                    <th>House Location</th>
-                    <th>Resident Name</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
+                    <th>Unit Rumah</th>
+                    <th>Nama Penghuni</th>
+                    <th>Tanggal Mulai</th>
+                    <th>Tanggal Selesai</th>
                     <th>Status</th>
-                    <th className="text-right">Actions</th>
+                    <th className="text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -366,7 +366,7 @@ export const HouseResidents: React.FC = () => {
                       <tr key={assoc.id} className="hover:bg-base-200/20 border-b border-base-200 transition-colors">
                         <td>
                           <div className="font-bold text-sm text-primary">
-                            {assoc.house?.house_number || `House ID #${assoc.house_id}`}
+                            {assoc.house?.house_number || `Rumah ID #${assoc.house_id}`}
                           </div>
                           <div className="text-xs text-base-content/50 truncate max-w-xs" title={assoc.house?.address}>
                             {assoc.house?.address}
@@ -374,11 +374,13 @@ export const HouseResidents: React.FC = () => {
                         </td>
                         <td>
                           <div className="font-semibold text-sm">
-                            {assoc.resident?.full_name || `Resident ID #${assoc.resident_id}`}
+                            {assoc.resident?.full_name || `Penghuni ID #${assoc.resident_id}`}
                           </div>
                           <div className="text-xs text-base-content/50">
                             {assoc.resident?.phone_number} •{' '}
-                            <span className="capitalize">{assoc.resident?.resident_status}</span>
+                            <span className="capitalize">
+                              {assoc.resident?.resident_status === 'permanent' ? 'Tetap' : 'Kontrak'}
+                            </span>
                           </div>
                         </td>
                         <td className="text-xs font-semibold">{assoc.start_date}</td>
@@ -386,7 +388,7 @@ export const HouseResidents: React.FC = () => {
                           {assoc.end_date ? (
                             assoc.end_date
                           ) : (
-                            <span className="text-base-content/30 font-normal italic">Present</span>
+                            <span className="text-base-content/30 font-normal italic">Sekarang</span>
                           )}
                         </td>
                         <td>
@@ -394,7 +396,7 @@ export const HouseResidents: React.FC = () => {
                             ? 'badge-success text-white'
                             : 'badge-ghost text-base-content/40'
                             }`}>
-                            {assoc.is_active ? 'Active' : 'Inactive'}
+                            {assoc.is_active ? 'Aktif' : 'Tidak Aktif'}
                           </span>
                         </td>
                         <td className="text-right">
@@ -408,7 +410,7 @@ export const HouseResidents: React.FC = () => {
                             className="btn btn-ghost btn-xs text-error font-bold hover:bg-error/10"
                             onClick={() => confirmDelete(assoc)}
                           >
-                            Delete
+                            Hapus
                           </button>
                         </td>
                       </tr>
@@ -416,7 +418,7 @@ export const HouseResidents: React.FC = () => {
                   ) : (
                     <tr>
                       <td colSpan={6} className="text-center py-12 text-base-content/50">
-                        No occupancy mappings found. Create one to map a resident.
+                        Hubungan hunian tidak ditemukan. Silakan tambahkan data hunian baru.
                       </td>
                     </tr>
                   )}
@@ -429,7 +431,7 @@ export const HouseResidents: React.FC = () => {
           {pagination.lastPage > 1 && (
             <div className="flex justify-between items-center mt-6">
               <span className="text-xs text-base-content/50">
-                Showing Page {pagination.currentPage} of {pagination.lastPage} ({pagination.total} records total)
+                Menampilkan Halaman {pagination.currentPage} dari {pagination.lastPage} (Total {pagination.total} data)
               </span>
               <div className="join">
                 <button
@@ -467,7 +469,7 @@ export const HouseResidents: React.FC = () => {
         <div className="modal modal-open z-50 bg-black/60">
           <div className="modal-box max-w-md border border-base-200">
             <h3 className="font-bold text-lg text-base-content mb-4">
-              {modalType === 'create' ? 'Assign House Occupant' : 'Edit Occupancy Records'}
+              {modalType === 'create' ? 'Tambah Penghuni Rumah' : 'Ubah Data Hunian'}
             </h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -475,7 +477,7 @@ export const HouseResidents: React.FC = () => {
               {/* Select Resident */}
               <div className="form-control">
                 <label className="label py-1">
-                  <span className="label-text font-semibold text-xs">Resident *</span>
+                  <span className="label-text font-semibold text-xs">Penghuni *</span>
                 </label>
                 <select
                   value={residentId}
@@ -485,10 +487,10 @@ export const HouseResidents: React.FC = () => {
                   disabled={submitLoading}
                   required
                 >
-                  <option value="">-- Choose Resident --</option>
+                  <option value="">-- Pilih Penghuni --</option>
                   {residents.map((r) => (
                     <option key={r.id} value={r.id}>
-                      {r.full_name} ({r.resident_status === 'permanent' ? 'Permanent' : 'Contract'})
+                      {r.full_name} ({r.resident_status === 'permanent' ? 'Tetap' : 'Kontrak'})
                     </option>
                   ))}
                 </select>
@@ -500,7 +502,7 @@ export const HouseResidents: React.FC = () => {
               {/* Select House */}
               <div className="form-control">
                 <label className="label py-1">
-                  <span className="label-text font-semibold text-xs">House Unit *</span>
+                  <span className="label-text font-semibold text-xs">Unit Rumah *</span>
                 </label>
                 <select
                   value={houseId}
@@ -510,10 +512,10 @@ export const HouseResidents: React.FC = () => {
                   disabled={submitLoading}
                   required
                 >
-                  <option value="">-- Choose House Unit --</option>
+                  <option value="">-- Pilih Unit Rumah --</option>
                   {houses.map((h) => (
                     <option key={h.id} value={h.id}>
-                      {h.house_number} ({h.occupancy_status === 'occupied' ? 'Occupied' : 'Vacant'})
+                      {h.house_number} ({h.occupancy_status === 'occupied' ? 'Dihuni' : 'Kosong'})
                     </option>
                   ))}
                 </select>
@@ -525,7 +527,7 @@ export const HouseResidents: React.FC = () => {
               {/* Start Date */}
               <div className="form-control">
                 <label className="label py-1">
-                  <span className="label-text font-semibold text-xs">Start Date *</span>
+                  <span className="label-text font-semibold text-xs">Tanggal Mulai *</span>
                 </label>
                 <input
                   type="date"
@@ -546,7 +548,7 @@ export const HouseResidents: React.FC = () => {
                 <div className="form-control">
                   <label className="label py-1">
                     <span className="label-text font-semibold text-xs text-error">
-                      End Date (Required for Contract Residents) *
+                      Tanggal Selesai (Wajib untuk Penghuni Kontrak) *
                     </span>
                   </label>
                   <input
@@ -574,7 +576,7 @@ export const HouseResidents: React.FC = () => {
                     className="checkbox checkbox-primary checkbox-sm"
                     disabled={submitLoading}
                   />
-                  <span className="label-text font-semibold text-xs">Is Active Occupant</span>
+                  <span className="label-text font-semibold text-xs">Penghuni Aktif</span>
                 </label>
                 {fieldErrors.is_active && (
                   <p className="text-error text-xs mt-1">{fieldErrors.is_active[0]}</p>
@@ -589,7 +591,7 @@ export const HouseResidents: React.FC = () => {
                   className="btn btn-sm btn-ghost"
                   disabled={submitLoading}
                 >
-                  Cancel
+                  Batal
                 </button>
                 <button
                   type="submit"
@@ -599,10 +601,10 @@ export const HouseResidents: React.FC = () => {
                   {submitLoading ? (
                     <>
                       <span className="loading loading-spinner loading-xs"></span>
-                      Saving...
+                      Menyimpan...
                     </>
                   ) : (
-                    'Save Assignment'
+                    'Simpan Data'
                   )}
                 </button>
               </div>
@@ -620,17 +622,17 @@ export const HouseResidents: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
               </svg>
             </div>
-            <h3 className="font-bold text-lg text-base-content m-0">Remove Assignment</h3>
+            <h3 className="font-bold text-lg text-base-content m-0">Hapus Hubungan Hunian</h3>
             <p className="text-sm text-base-content/60 mt-1 mb-6">
-              Are you sure you want to remove the occupancy assignment for{' '}
+              Apakah Anda yakin ingin menghapus hubungan hunian untuk{' '}
               <strong>
-                {deleteTarget?.resident?.full_name || `Resident ID #${deleteTarget?.resident_id}`}
+                {deleteTarget?.resident?.full_name || `Penghuni ID #${deleteTarget?.resident_id}`}
               </strong>{' '}
-              at house{' '}
+              di rumah{' '}
               <strong>
-                {deleteTarget?.house?.house_number || `House ID #${deleteTarget?.house_id}`}
+                {deleteTarget?.house?.house_number || `Rumah ID #${deleteTarget?.house_id}`}
               </strong>
-              ? This action cannot be undone.
+              ? Tindakan ini tidak dapat dibatalkan.
             </p>
             <div className="flex justify-center gap-2">
               <button
@@ -641,14 +643,14 @@ export const HouseResidents: React.FC = () => {
                 }}
                 disabled={loading}
               >
-                Cancel
+                Batal
               </button>
               <button
                 className="btn btn-sm btn-error text-white"
                 onClick={handleDelete}
                 disabled={loading}
               >
-                {loading ? 'Deleting...' : 'Delete Assignment'}
+                {loading ? 'Menghapus...' : 'Hapus Hubungan'}
               </button>
             </div>
           </div>
